@@ -200,7 +200,7 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+FRONTEND_URL = config('FRONTEND_URL', default='http://pulse-parcel-ltd.vercel.app')
 
 
 PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
