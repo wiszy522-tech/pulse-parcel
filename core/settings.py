@@ -218,7 +218,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 if not DEBUG:
     ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
-    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = [
+    config('FRONTEND_URL', default='http://localhost:5173'),
+]
+CORS_ALLOW_ALL_ORIGINS = config('DEBUG', default=True, cast=bool)
 
 
     
