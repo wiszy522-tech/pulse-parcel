@@ -11,5 +11,9 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "tailwindcss": "^4.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
+
