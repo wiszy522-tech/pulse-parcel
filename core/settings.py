@@ -217,7 +217,7 @@ import os
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 if not DEBUG:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
     CORS_ALLOW_ALL_ORIGINS = True
 
 
