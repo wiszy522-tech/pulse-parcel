@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -29,24 +26,34 @@ class ProductListCreateView(APIView):
         return [IsAdminOrReadOnly()]
 
     def get(self, request):
-        cache_key = 'product_list'
-        cached = cache.get(cache_key)
-        if cached:
-            return Response(cached)
-
-        products = Product.objects.all().order_by('-created_at')
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        cache.set(cache_key, serializer.data, timeout=settings.CACHE_TTL)
-        return Response(serializer.data)
+        try:
+            cache_key = 'product_list'
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(cached)
+            products = Product.objects.all().order_by('-created_at')
+            serializer = ProductSerializer(products, many=True, context={'request': request})
+            try:
+                cache.set(cache_key, serializer.data, timeout=settings.CACHE_TTL)
+            except Exception:
+                pass
+            return Response(serializer.data)
+        except Exception as e:
+            print(f"Products error: {e}")
+            products = Product.objects.all().order_by('-created_at')
+            serializer = ProductSerializer(products, many=True, context={'request': request})
+            return Response(serializer.data)
 
     def post(self, request):
         if not request.user.is_authenticated or not request.user.is_admin:
             return Response({'error': 'Admin only'}, status=status.HTTP_403_FORBIDDEN)
-
         serializer = ProductSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(uploaded_by=request.user)
-            cache.delete('product_list')  # Clear cache on new product
+            try:
+                cache.delete('product_list')
+            except Exception:
+                pass
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -64,11 +71,17 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         serializer.save()
-        cache.delete('product_list')
+        try:
+            cache.delete('product_list')
+        except Exception:
+            pass
 
     def perform_destroy(self, instance):
         instance.delete()
-        cache.delete('product_list')
+        try:
+            cache.delete('product_list')
+        except Exception:
+            pass
 
 
 class ProductLikeView(APIView):
@@ -82,11 +95,15 @@ class ProductLikeView(APIView):
         )
         if not created:
             like.delete()
-            cache.delete('product_list')
+            try:
+                cache.delete('product_list')
+            except Exception:
+                pass
             return Response({'message': 'Product unliked'})
-        cache.delete('product_list')
+        try:
+            cache.delete('product_list')
+        except Exception:
+            pass
         return Response({'message': 'Product liked'}, status=status.HTTP_201_CREATED)
     
-
-
     

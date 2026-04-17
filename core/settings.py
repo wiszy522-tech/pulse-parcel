@@ -97,16 +97,24 @@ else:
     }
 
 # Cache
-REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/1')
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+REDIS_URL = config('REDIS_URL', default=None)
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
 CACHE_TTL = 60 * 15
 
 AUTH_PASSWORD_VALIDATORS = [
