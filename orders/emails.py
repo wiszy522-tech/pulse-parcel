@@ -2,6 +2,19 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 
+def send_email_safe(subject, message, recipient):
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient],
+            fail_silently=True
+        )
+    except Exception as e:
+        print(f"Email failed silently: {e}")
+
+
 def send_order_created_email(order):
     items_list = "\n".join([
         f"- {item.quantity}x {item.product_name} @ ₦{item.product_price}"
@@ -11,10 +24,8 @@ def send_order_created_email(order):
     message = f"""
 Hi {order.full_name},
 
-Your order has been placed successfully! 🎉
+Your order has been placed successfully!
 
-Order Details:
---------------
 Tracking Code: {order.tracking_code}
 Status: Pending
 Total: ₦{order.total_amount}
@@ -25,33 +36,29 @@ Items Ordered:
 Delivery Address:
 {order.address}, {order.city}, {order.state}, {order.country}
 
-You can track your order using your tracking code: {order.tracking_code}
-
-Thank you for shopping with us!
+Thank you for shopping with Pulse Parcel Limited!
     """
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [order.email])
+    send_email_safe(subject, message, order.email)
 
 
 def send_out_for_delivery_email(order):
-    subject = f"Your Order {order.tracking_code} is Out for Delivery! 🚚"
+    subject = f"Your Order {order.tracking_code} is Out for Delivery!"
     message = f"""
 Hi {order.full_name},
 
-Great news! Your order is on its way to you.
+Your order is on its way!
 
-Order Details:
---------------
 Tracking Code: {order.tracking_code}
 Status: Out for Delivery
 
 Your parcel is currently out for delivery and should arrive soon.
-Please ensure someone is available to receive it at:
 
+Delivery Address:
 {order.address}, {order.city}, {order.state}, {order.country}
 
 Thank you for your patience!
     """
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [order.email])
+    send_email_safe(subject, message, order.email)
 
 
 def send_delivered_email(order):
@@ -59,26 +66,21 @@ def send_delivered_email(order):
         f"- {item.quantity}x {item.product_name}"
         for item in order.items.all()
     ])
-    subject = f"Order {order.tracking_code} Delivered! ✅"
+    subject = f"Order {order.tracking_code} Delivered!"
     message = f"""
 Hi {order.full_name},
 
-Your order has been delivered successfully! 🎉
+Your order has been delivered successfully!
 
-Order Details:
---------------
 Tracking Code: {order.tracking_code}
 Status: Delivered
 
 Items Delivered:
 {items_list}
 
-We hope you enjoy your purchase! If you have any issues,
-please don't hesitate to contact us.
-
-Thank you for shopping with us!
+Thank you for shopping with Pulse Parcel Limited!
     """
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [order.email])
+    send_email_safe(subject, message, order.email)
 
 
 
