@@ -1,3 +1,5 @@
+from django.shortcuts import render
+
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,7 +12,6 @@ from .emails import send_order_created_email, send_out_for_delivery_email, send_
 import requests
 import uuid
 
-
 class CreateOrderView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -19,9 +20,10 @@ class CreateOrderView(APIView):
         if serializer.is_valid():
             order = serializer.save(user=request.user)
 
+            # Initialize Paystack payment
             paystack_data = {
                 'email': order.email,
-                'amount': int(order.total_amount * 100),
+                'amount': int(order.total_amount * 100),  # Paystack uses kobo
                 'reference': str(uuid.uuid4()),
                 'callback_url': f"{settings.FRONTEND_URL}/payment/verify",
                 'metadata': {
@@ -35,41 +37,29 @@ class CreateOrderView(APIView):
                 'Content-Type': 'application/json'
             }
 
-            try:
-                paystack_response = requests.post(
-                    'https://api.paystack.co/transaction/initialize',
-                    json=paystack_data,
-                    headers=headers
-                )
-                paystack_result = paystack_response.json()
+            paystack_response = requests.post(
+                'https://api.paystack.co/transaction/initialize',
+                json=paystack_data,
+                headers=headers
+            )
 
-                if paystack_result.get('status'):
-                    order.paystack_reference = paystack_data['reference']
-                    order.save()
+            paystack_result = paystack_response.json()
 
-                    try:
-                        send_order_created_email(order)
-                    except Exception as e:
-                        print(f"Email error: {e}")
+            if paystack_result.get('status'):
+                order.paystack_reference = paystack_data['reference']
+                order.save()
 
-                    return Response({
-                        'message': 'Order created successfully',
-                        'order': OrderSerializer(order).data,
-                        'payment_url': paystack_result['data']['authorization_url'],
-                        'reference': paystack_data['reference']
-                    }, status=status.HTTP_201_CREATED)
-                else:
-                    order.delete()
-                    return Response(
-                        {'error': 'Failed to initialize payment'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            except Exception as e:
-                print(f"Paystack error: {e}")
+                return Response({
+                    'message': 'Order created successfully',
+                    'order': OrderSerializer(order).data,
+                    'payment_url': paystack_result['data']['authorization_url'],
+                    'reference': paystack_data['reference']
+                }, status=status.HTTP_201_CREATED)
+            else:
                 order.delete()
                 return Response(
-                    {'error': 'Payment service unavailable'},
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE
+                    {'error': 'Failed to initialize payment'},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -82,53 +72,41 @@ class VerifyPaymentView(APIView):
         headers = {
             'Authorization': f"Bearer {settings.PAYSTACK_SECRET_KEY}",
         }
-        try:
-            paystack_response = requests.get(
-                f'https://api.paystack.co/transaction/verify/{reference}',
-                headers=headers
+
+        paystack_response = requests.get(
+            f'https://api.paystack.co/transaction/verify/{reference}',
+            headers=headers
+        )
+
+        result = paystack_response.json()
+
+        if result.get('status') and result['data']['status'] == 'success':
+            order = get_object_or_404(Order, paystack_reference=reference)
+            order.payment_status = 'paid'
+            order.status = 'processing'
+            order.save()
+
+            OrderStatusHistory.objects.create(
+                order=order,
+                status='processing',
+                note='Payment confirmed'
             )
-            result = paystack_response.json()
 
-            if result.get('status') and result['data']['status'] == 'success':
-                try:
-                    order = Order.objects.get(paystack_reference=reference)
-                except Order.DoesNotExist:
-                    return Response(
-                        {'error': 'Order not found'},
-                        status=status.HTTP_404_NOT_FOUND
-                    )
+            # Send order confirmation email
+            try:
+                send_order_created_email(order)
+            except Exception as e:
+                print(f"Email error: {e}")
 
-                if order.payment_status != 'paid':
-                    order.payment_status = 'paid'
-                    order.status = 'processing'
-                    order.save()
+            return Response({
+                'message': 'Payment verified successfully',
+                'order': OrderSerializer(order).data
+            })
 
-                    OrderStatusHistory.objects.create(
-                        order=order,
-                        status='processing',
-                        note='Payment confirmed'
-                    )
-
-                    try:
-                        send_order_created_email(order)
-                    except Exception as e:
-                        print(f"Email error: {e}")
-
-                return Response({
-                    'message': 'Payment verified successfully',
-                    'order': OrderSerializer(order).data
-                })
-
-            return Response(
-                {'error': 'Payment verification failed'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            print(f"Verify error: {e}")
-            return Response(
-                {'error': 'Verification error'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        return Response(
+            {'error': 'Payment verification failed'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class OrderListView(generics.ListAPIView):
@@ -154,10 +132,18 @@ class OrderDetailView(generics.RetrieveAPIView):
 
 
 class TrackOrderView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, tracking_code):
         order = get_object_or_404(Order, tracking_code=tracking_code)
+
+        # Only allow owner or admin
+        if order.user != request.user and not request.user.is_admin:
+            return Response(
+                {'error': 'Not authorized'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         return Response(OrderSerializer(order).data)
 
 
@@ -174,7 +160,8 @@ class ScanParcelView(APIView):
         order = get_object_or_404(Order, tracking_code=tracking_code)
         current_status = order.status
 
-        if current_status in ['pending', 'processing']:
+        # Status flow: processing -> out_for_delivery -> delivered
+        if current_status == 'processing':
             order.status = 'out_for_delivery'
             order.save()
 
@@ -222,5 +209,6 @@ class ScanParcelView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+
 
         
