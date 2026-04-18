@@ -24,22 +24,18 @@ export default function PaymentVerify() {
   }
 
   useEffect(() => {
-  const reference = searchParams.get('reference') || searchParams.get('trxref')
-  console.log('Reference found:', reference)
-  if (!reference) {
-    setStatus('failed')
-    return
-  }
-  api.get(`/orders/verify-payment/${reference}/`)
-    .then(res => {
-      setOrder(res.data.order)
-      setStatus('success')
-    })
-    .catch((err) => {
-      console.log('Verify error:', err.response?.data)
+    const reference = searchParams.get('reference') || searchParams.get('trxref')
+    if (!reference) {
       setStatus('failed')
-    })
-  }, [searchParams])
+      return
+    }
+    api.get(`/orders/verify-payment/${reference}/`)
+      .then(res => {
+        setOrder(res.data.order)
+        setStatus('success')
+      })
+      .catch(() => setStatus('failed'))
+  }, [])
 
   if (status === 'verifying') return <Loader />
 
