@@ -39,7 +39,7 @@ export default function PaymentVerify() {
       console.log('Verify error:', err.response?.data)
       setStatus('failed')
     })
-}, [searchParams])
+  }, [searchParams])
 
   if (status === 'verifying') return <Loader />
 
