@@ -72,53 +72,41 @@ class VerifyPaymentView(APIView):
         headers = {
             'Authorization': f"Bearer {settings.PAYSTACK_SECRET_KEY}",
         }
-        try:
-            paystack_response = requests.get(
-                f'https://api.paystack.co/transaction/verify/{reference}',
-                headers=headers
+
+        paystack_response = requests.get(
+            f'https://api.paystack.co/transaction/verify/{reference}',
+            headers=headers
+        )
+
+        result = paystack_response.json()
+
+        if result.get('status') and result['data']['status'] == 'success':
+            order = get_object_or_404(Order, paystack_reference=reference)
+            order.payment_status = 'paid'
+            order.status = 'processing'
+            order.save()
+
+            OrderStatusHistory.objects.create(
+                order=order,
+                status='processing',
+                note='Payment confirmed'
             )
-            result = paystack_response.json()
 
-            if result.get('status') and result['data']['status'] == 'success':
-                try:
-                    order = Order.objects.get(paystack_reference=reference)
-                except Order.DoesNotExist:
-                    return Response(
-                        {'error': 'Order not found'},
-                        status=status.HTTP_404_NOT_FOUND
-                    )
+            # Send order confirmation email
+            try:
+                send_order_created_email(order)
+            except Exception as e:
+                print(f"Email error: {e}")
 
-                if order.payment_status != 'paid':
-                    order.payment_status = 'paid'
-                    order.status = 'processing'
-                    order.save()
+            return Response({
+                'message': 'Payment verified successfully',
+                'order': OrderSerializer(order).data
+            })
 
-                    OrderStatusHistory.objects.create(
-                        order=order,
-                        status='processing',
-                        note='Payment confirmed'
-                    )
-
-                    try:
-                        send_order_created_email(order)
-                    except Exception as e:
-                        print(f"Email error: {e}")
-
-                return Response({
-                    'message': 'Payment verified successfully',
-                    'order': OrderSerializer(order).data
-                })
-
-            return Response(
-                {'error': 'Payment verification failed'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception as e:
-            print(f"Verify error: {e}")
-            return Response(
-                {'error': 'Verification error'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        return Response(
+            {'error': 'Payment verification failed'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class OrderListView(generics.ListAPIView):
