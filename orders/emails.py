@@ -13,9 +13,10 @@ def send_email_async(subject, message, recipient):
                 [recipient],
                 fail_silently=True
             )
+            print(f"Email sent to {recipient}")
         except Exception as e:
             print(f"Email error: {e}")
-    
+
     thread = threading.Thread(target=send)
     thread.daemon = True
     thread.start()
@@ -23,20 +24,20 @@ def send_email_async(subject, message, recipient):
 
 def send_order_created_email(order):
     items_list = "\n".join([
-        f"- {item.quantity}x {item.product_name} @ N{item.product_price}"
+        f"- {item.quantity}x {item.product_name} @ ₦{item.product_price}"
         for item in order.items.all()
     ])
     subject = f"Order Confirmed - {order.tracking_code}"
     message = f"""
 Hi {order.full_name},
 
-Your order has been placed successfully!
+Your order has been placed successfully! 🎉
 
 Order Details:
 --------------
 Tracking Code: {order.tracking_code}
 Status: Pending
-Total: N{order.total_amount}
+Total: ₦{order.total_amount}
 
 Items Ordered:
 {items_list}
@@ -46,13 +47,13 @@ Delivery Address:
 
 You can track your order using your tracking code: {order.tracking_code}
 
-Thank you for shopping with Pulse Parcel Limited!
+Thank you for shopping with us!
     """
     send_email_async(subject, message, order.email)
 
 
 def send_out_for_delivery_email(order):
-    subject = f"Your Order {order.tracking_code} is Out for Delivery!"
+    subject = f"Your Order {order.tracking_code} is Out for Delivery! 🚚"
     message = f"""
 Hi {order.full_name},
 
@@ -78,11 +79,11 @@ def send_delivered_email(order):
         f"- {item.quantity}x {item.product_name}"
         for item in order.items.all()
     ])
-    subject = f"Order {order.tracking_code} Delivered!"
+    subject = f"Order {order.tracking_code} Delivered! ✅"
     message = f"""
 Hi {order.full_name},
 
-Your order has been delivered successfully!
+Your order has been delivered successfully! 🎉
 
 Order Details:
 --------------
@@ -92,7 +93,7 @@ Status: Delivered
 Items Delivered:
 {items_list}
 
-We hope you enjoy your purchase! If you have any issues
+We hope you enjoy your purchase! If you have any issues,
 please don't hesitate to contact us.
 
 Email: pulseparcelltd@gmail.com
@@ -103,7 +104,4 @@ Thank you for shopping with Pulse Parcel Limited!
     send_email_async(subject, message, order.email)
 
 
-
-
-    
     
