@@ -1,19 +1,30 @@
-from django.core.mail import send_mail
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 from django.conf import settings
 import threading
 
 
-def send_email_async(subject, message, recipient):
+def send_email_async(subject, message, recipient, recipient_name=''):
     def send():
         try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [recipient],
-                fail_silently=True
+            configuration = sib_api_v3_sdk.Configuration()
+            configuration.api_key['api-key'] = settings.BREVO_API_KEY
+
+            api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+                sib_api_v3_sdk.ApiClient(configuration)
             )
+
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                to=[{"email": recipient, "name": recipient_name or recipient}],
+                sender={"name": "Pulse Parcel Limited", "email": settings.BREVO_SENDER_EMAIL},
+                subject=subject,
+                text_content=message
+            )
+
+            api_instance.send_transac_email(send_smtp_email)
             print(f"Email sent successfully to {recipient}")
+        except ApiException as e:
+            print(f"Brevo API error: {e}")
         except Exception as e:
             print(f"Email error: {e}")
 
@@ -51,7 +62,7 @@ Thank you for shopping with Pulse Parcel Limited!
 Email: pulseparcelltd@gmail.com
 Phone: +234 805 050 1440
     """
-    send_email_async(subject, message, order.email)
+    send_email_async(subject, message, order.email, order.full_name)
 
 
 def send_out_for_delivery_email(order):
@@ -71,7 +82,7 @@ Thank you for your patience!
 Email: pulseparcelltd@gmail.com
 Phone: +234 805 050 1440
     """
-    send_email_async(subject, message, order.email)
+    send_email_async(subject, message, order.email, order.full_name)
 
 
 def send_delivered_email(order):
@@ -95,8 +106,6 @@ Thank you for shopping with Pulse Parcel Limited!
 Email: pulseparcelltd@gmail.com
 Phone: +234 805 050 1440
     """
-    send_email_async(subject, message, order.email)
-
-
+    send_email_async(subject, message, order.email, order.full_name)
     
     
