@@ -95,7 +95,7 @@ export default function Register() {
   const isMobile = window.innerWidth < 768
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg, paddingBottom: '90px' }}>
 
       {/* Left side - Image */}
       <div style={{ width: '50%', position: 'relative', overflow: 'hidden' }}
@@ -161,22 +161,22 @@ export default function Register() {
           style={{ width: '100%', maxWidth: '440px' }}
         >
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '16px', marginBottom: isMobile ? '28px' : '40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
             <img src="/p_logo.png" alt="Logo" style={{
-              width: isMobile ? '56px' : '80px', height: isMobile ? '56px' : '80px', borderRadius: isMobile ? '12px' : '18px',
+              width: '80px', height: '80px', borderRadius: '18px',
               objectFit: 'contain', background: 'transparent',
               boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
             }} />
             <div>
-              <div style={{ fontWeight: 900, fontSize: isMobile ? '18px' : '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
-              <div style={{ fontSize: isMobile ? '9px' : '12px', color: '#E8541A', letterSpacing: isMobile ? '2px' : '3px', fontWeight: 700 }}>LIMITED</div>
+              <div style={{ fontWeight: 900, fontSize: '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
+              <div style={{ fontSize: '12px', color: '#E8541A', letterSpacing: '3px', fontWeight: 700 }}>LIMITED</div>
             </div>
           </div>
 
-          <h2 style={{ fontSize: isMobile ? '28px' : '38px', fontWeight: 900, color: colors.text, marginBottom: '8px', lineHeight: 1.1 }}>
+          <h2 style={{ fontSize: '38px', fontWeight: 900, color: colors.text, marginBottom: '8px', lineHeight: 1.1 }}>
             Create account
           </h2>
-          <p style={{ color: colors.subtext, fontSize: isMobile ? '13px' : '16px', marginBottom: isMobile ? '24px' : '32px' }}>
+          <p style={{ color: colors.subtext, fontSize: '16px', marginBottom: '32px' }}>
             Join Pulse Parcel Limited today
           </p>
 
@@ -186,14 +186,14 @@ export default function Register() {
             onClick={() => handleGoogleLogin()}
             disabled={googleLoading}
             style={{
-              width: '100%', padding: isMobile ? '12px' : '15px', borderRadius: '12px',
+              width: '100%', padding: '15px', borderRadius: '12px',
               border: `1.5px solid ${colors.inputBorder}`,
               background: colors.inputBg, color: colors.inputText,
-              fontWeight: 700, fontSize: isMobile ? '13px' : '15px',
+              fontWeight: 700, fontSize: '15px',
               cursor: googleLoading ? 'not-allowed' : 'pointer',
               opacity: googleLoading ? 0.6 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: '10px', marginBottom: isMobile ? '16px' : '24px',
+              gap: '10px', marginBottom: '24px',
               transition: 'all 0.2s', boxSizing: 'border-box'
             }}
           >
@@ -213,17 +213,17 @@ export default function Register() {
           </button>
 
           {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: isMobile ? '16px' : '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
             <div style={{ flex: 1, height: '1px', background: colors.divider }} />
-            <span style={{ color: colors.subtext, fontSize: isMobile ? '11px' : '13px' }}>or sign up with email</span>
+            <span style={{ color: colors.subtext, fontSize: '13px' }}>or sign up with email</span>
             <div style={{ flex: 1, height: '1px', background: colors.divider }} />
           </div>
 
           <form onSubmit={handleSubmit}>
 
             {/* Full Name */}
-            <div style={{ marginBottom: isMobile ? '14px' : '20px' }}>
-              <label style={{ display: 'block', fontSize: isMobile ? '12px' : '14px', fontWeight: 600, color: colors.label, marginBottom: '6px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
                 Full Name
               </label>
               <div style={{ position: 'relative' }}>
@@ -233,8 +233,8 @@ export default function Register() {
             </div>
 
             {/* Email */}
-            <div style={{ marginBottom: isMobile ? '14px' : '20px' }}>
-              <label style={{ display: 'block', fontSize: isMobile ? '12px' : '14px', fontWeight: 600, color: colors.label, marginBottom: '6px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
                 Email Address
               </label>
               <div style={{ position: 'relative' }}>
@@ -244,8 +244,8 @@ export default function Register() {
             </div>
 
             {/* Password */}
-            <div style={{ marginBottom: isMobile ? '14px' : '20px' }}>
-              <label style={{ display: 'block', fontSize: isMobile ? '12px' : '14px', fontWeight: 600, color: colors.label, marginBottom: '6px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
                 Password
               </label>
               <div style={{ position: 'relative' }}>
@@ -260,8 +260,8 @@ export default function Register() {
             </div>
 
             {/* Confirm Password */}
-            <div style={{ marginBottom: isMobile ? '20px' : '32px' }}>
-              <label style={{ display: 'block', fontSize: isMobile ? '12px' : '14px', fontWeight: 600, color: colors.label, marginBottom: '6px' }}>
+            <div style={{ marginBottom: '32px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
                 Confirm Password
               </label>
               <div style={{ position: 'relative' }}>
@@ -280,9 +280,9 @@ export default function Register() {
               type="submit"
               disabled={loading}
               style={{
-                width: '100%', padding: isMobile ? '12px' : '16px', borderRadius: '12px',
+                width: '100%', padding: '16px', borderRadius: '12px',
                 background: '#E8541A', color: 'white',
-                fontWeight: 800, fontSize: isMobile ? '14px' : '16px', border: 'none',
+                fontWeight: 800, fontSize: '16px', border: 'none',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.6 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -293,7 +293,7 @@ export default function Register() {
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: isMobile ? '16px' : '24px', fontSize: isMobile ? '12px' : '14px' }}>
+          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: '24px', fontSize: '14px' }}>
             Already have an account?{' '}
             <Link to="/login" style={{ color: '#2D2D7F', fontWeight: 700, textDecoration: 'none' }}>
               Sign in

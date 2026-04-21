@@ -47,7 +47,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: colors.bg }}>
+    <div style={{ minHeight: '100vh', background: colors.bg, paddingBottom: '90px' }}>
       <Navbar />
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>

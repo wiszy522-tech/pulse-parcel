@@ -60,7 +60,7 @@ export default function Products() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: colors.bg }}>
+    <div style={{ minHeight: '100vh', background: colors.bg, paddingBottom: '90px' }}>
       <Navbar />
 
       {/* Header */}
@@ -112,7 +112,7 @@ export default function Products() {
       </div>
 
       {/* Products Grid */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: window.innerWidth < 768 ? '24px 16px' : '32px 24px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
         {isLoading ? (
           <Loader fullscreen={false} />
         ) : filtered.length === 0 ? (
@@ -123,8 +123,8 @@ export default function Products() {
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: window.innerWidth < 640 ? '1fr' : window.innerWidth < 1024 ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: window.innerWidth < 768 ? '16px' : '24px'
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '24px'
           }}>
             {filtered.map((product, i) => {
               const stock = getStockBadge(product.stock)
@@ -173,18 +173,18 @@ export default function Products() {
                   </div>
 
                   {/* Product Info */}
-                  <div style={{ padding: window.innerWidth < 768 ? '16px' : '20px' }}>
+                  <div style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <h3 style={{ fontSize: window.innerWidth < 768 ? '15px' : '16px', fontWeight: 800, color: colors.text, margin: 0, flex: 1, paddingRight: '8px' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 800, color: colors.text, margin: 0, flex: 1, paddingRight: '8px' }}>
                         {product.name}
                       </h3>
-                      <span style={{ fontSize: window.innerWidth < 768 ? '16px' : '18px', fontWeight: 900, color: '#E8541A', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: '18px', fontWeight: 900, color: '#E8541A', whiteSpace: 'nowrap' }}>
                         ₦{Number(product.price).toLocaleString()}
                       </span>
                     </div>
 
                     {/* Description with Read More */}
-                    <p style={{ fontSize: window.innerWidth < 768 ? '12px' : '13px', color: colors.subtext, lineHeight: 1.6, marginBottom: '4px' }}>
+                    <p style={{ fontSize: '13px', color: colors.subtext, lineHeight: 1.6, marginBottom: '4px' }}>
                       {longDesc && !isExpanded
                         ? product.description.slice(0, 100) + '...'
                         : product.description}
@@ -192,30 +192,29 @@ export default function Products() {
                     {longDesc && (
                       <button
                         onClick={() => setExpandedDesc(prev => ({ ...prev, [product.id]: !prev[product.id] }))}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2D2D7F', fontSize: '11px', fontWeight: 700, padding: 0, marginBottom: '12px' }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2D2D7F', fontSize: '12px', fontWeight: 700, padding: 0, marginBottom: '12px' }}
                       >
                         {isExpanded ? 'Read less ↑' : 'Read more ↓'}
                       </button>
                     )}
 
                     {/* Actions */}
-                    <div style={{ display: 'flex', gap: window.innerWidth < 768 ? '6px' : '10px', marginTop: '12px', flexWrap: window.innerWidth < 768 ? 'wrap' : 'nowrap' }}>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
                       {/* Like button */}
                       <button
                         onClick={() => likeMutation.mutate(product.id)}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: '4px',
-                          padding: window.innerWidth < 768 ? '7px 10px' : '9px 14px', borderRadius: '10px',
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                          padding: '9px 14px', borderRadius: '10px',
                           border: `1.5px solid ${product.is_liked ? '#ef4444' : colors.border}`,
                           background: product.is_liked ? 'rgba(239,68,68,0.08)' : 'transparent',
                           color: product.is_liked ? '#ef4444' : colors.subtext,
-                          cursor: 'pointer', fontSize: window.innerWidth < 768 ? '12px' : '13px', fontWeight: 600,
-                          transition: 'all 0.2s',
-                          minWidth: window.innerWidth < 768 ? 'auto' : 'fit-content'
+                          cursor: 'pointer', fontSize: '13px', fontWeight: 600,
+                          transition: 'all 0.2s'
                         }}
                       >
                         <Heart style={{ width: '14px', height: '14px', fill: product.is_liked ? '#ef4444' : 'none' }} />
-                        {window.innerWidth < 640 ? '' : product.likes_count}
+                        {product.likes_count}
                       </button>
 
                       {/* Order button */}
@@ -226,19 +225,18 @@ export default function Products() {
                         }}
                         disabled={product.stock === 0}
                         style={{
-                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                          padding: window.innerWidth < 768 ? '7px 10px' : '9px 14px', borderRadius: '10px',
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                          padding: '9px 14px', borderRadius: '10px',
                           border: 'none',
                           background: product.stock === 0 ? '#374151' : '#2D2D7F',
                           color: 'white',
                           cursor: product.stock === 0 ? 'not-allowed' : 'pointer',
-                          fontSize: window.innerWidth < 768 ? '12px' : '13px', fontWeight: 700,
-                          transition: 'all 0.2s',
-                          minWidth: 0
+                          fontSize: '13px', fontWeight: 700,
+                          transition: 'all 0.2s'
                         }}
                       >
                         <ShoppingCart style={{ width: '14px', height: '14px' }} />
-                        {window.innerWidth < 640 ? 'Order' : 'Order Now'}
+                        Order Now
                       </button>
                     </div>
                   </div>

@@ -51,7 +51,7 @@ export default function TrackOrder() {
   const getCurrentStep = (status) => STATUS_STEPS.findIndex(s => s.key === status)
 
   return (
-    <div style={{ minHeight: '100vh', background: colors.bg }}>
+    <div style={{ minHeight: '100vh', background: colors.bg, paddingBottom: '90px' }}>
       {isAuthenticated && <Navbar />}
 
       {/* Hero search section */}
@@ -90,7 +90,7 @@ export default function TrackOrder() {
           onSubmit={handleTrack}
           style={{ display: 'flex', gap: window.innerWidth < 768 ? '8px' : '12px', maxWidth: '540px', margin: '0 auto', flexWrap: window.innerWidth < 768 ? 'wrap' : 'nowrap', paddingX: window.innerWidth < 768 ? '12px' : '0' }}
         >
-          <div style={{ position: 'relative', flex: 1, minWidth: window.innerWidth < 768 ? '100%' : 'auto' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '18px', height: '18px' }} />
             <input
               type="text"
@@ -99,12 +99,12 @@ export default function TrackOrder() {
               placeholder="e.g. TRK-A3F9K2M1"
               style={{
                 width: '100%', paddingLeft: '48px', paddingRight: '16px',
-                paddingTop: window.innerWidth < 768 ? '12px' : '16px', paddingBottom: window.innerWidth < 768 ? '12px' : '16px',
+                paddingTop: '16px', paddingBottom: '16px',
                 borderRadius: '14px', border: 'none',
                 background: 'white', color: '#0f172a',
-                fontSize: window.innerWidth < 768 ? '14px' : '16px', outline: 'none',
+                fontSize: '16px', outline: 'none',
                 boxSizing: 'border-box', fontWeight: 600,
-                letterSpacing: '0.5px'
+                letterSpacing: '1px'
               }}
             />
           </div>
@@ -112,19 +112,18 @@ export default function TrackOrder() {
             type="submit"
             disabled={loading}
             style={{
-              padding: window.innerWidth < 768 ? '12px 20px' : '16px 28px', borderRadius: '14px',
+              padding: '16px 28px', borderRadius: '14px',
               background: '#E8541A', color: 'white',
-              fontWeight: 800, fontSize: window.innerWidth < 768 ? '14px' : '15px',
+              fontWeight: 800, fontSize: '15px',
               border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1,
-              display: 'flex', alignItems: 'center', gap: '6px',
-              whiteSpace: 'nowrap',
-              minWidth: window.innerWidth < 768 ? '100%' : 'auto'
+              display: 'flex', alignItems: 'center', gap: '8px',
+              whiteSpace: 'nowrap'
             }}
           >
             {loading
               ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" />
-              : <><Search style={{ width: '16px', height: '16px' }} /> {window.innerWidth < 640 ? 'Track' : 'Track Parcel'}</>
+              : <><Search style={{ width: '16px', height: '16px' }} /> Track</>
             }
           </button>
         </motion.form>

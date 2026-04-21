@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import PaymentVerify from './pages/PaymentVerify'
 import ChatbotWidget from './components/ChatbotWidget'
+import MobileNav from './components/layout/MobileNav'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuthStore()
@@ -55,6 +56,7 @@ export default function App() {
         } />
       </Routes>
       {isAuthenticated && <ChatbotWidget />}
+      {isAuthenticated && <MobileNav />}
     </>
   )
 }
