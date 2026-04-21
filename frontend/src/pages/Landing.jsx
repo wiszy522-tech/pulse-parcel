@@ -4,6 +4,20 @@ import { Package, Truck, CheckCircle, ArrowRight, Shield, Zap, Globe } from 'luc
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 
+const glowingLineStyles = `
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(232, 84, 26, 0.6), 0 0 40px rgba(232, 84, 26, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(232, 84, 26, 0.8), 0 0 60px rgba(232, 84, 26, 0.5);
+    }
+  }
+  .glowing-line {
+    animation: glow 2s ease-in-out infinite;
+  }
+`
+
 export default function Landing() {
   const navigate = useNavigate()
   const { theme } = useThemeStore()
@@ -33,6 +47,7 @@ export default function Landing() {
 
   return (
     <div style={{ minHeight: '100vh', background: colors.bg }}>
+      <style>{glowingLineStyles}</style>
 
       {/* Navbar */}
       <nav style={{
@@ -207,7 +222,7 @@ export default function Landing() {
 
           <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(3, 1fr)', gap: window.innerWidth < 768 ? '24px' : '32px', position: 'relative' }}>
             {window.innerWidth >= 768 && (
-              <div style={{
+              <div className="glowing-line" style={{
                 position: 'absolute', top: '40px', left: '20%', right: '20%',
                 height: '2px', background: 'linear-gradient(90deg, #F5A623, #E8541A, #10b981)',
                 zIndex: 0,
