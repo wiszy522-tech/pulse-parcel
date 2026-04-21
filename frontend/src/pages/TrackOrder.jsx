@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Package, Truck, CheckCircle, Clock, XCircle, Loader2, ArrowRight } from 'lucide-react'
+import { Search, Package, Truck, CheckCircle, Clock, XCircle, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Navbar from '../components/layout/Navbar'
 import api from '../services/api'
@@ -62,7 +62,6 @@ export default function TrackOrder() {
         padding: '80px 24px',
         textAlign: 'center'
       }}>
-        {/* Logo for non-authenticated users */}
         {!isAuthenticated && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '40px' }}>
             <img src="/p_logo.png" alt="Logo" style={{ width: '56px', height: '56px', borderRadius: '14px', objectFit: 'contain', background: 'white', padding: '6px' }} />
@@ -84,7 +83,6 @@ export default function TrackOrder() {
           Enter your tracking code to see your delivery status
         </p>
 
-        {/* Search bar */}
         <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,7 +121,10 @@ export default function TrackOrder() {
               whiteSpace: 'nowrap'
             }}
           >
-            {loading ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" /> : <><Search style={{ width: '16px', height: '16px' }} /> Track</>}
+            {loading
+              ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" />
+              : <><Search style={{ width: '16px', height: '16px' }} /> Track</>
+            }
           </button>
         </motion.form>
       </div>
@@ -167,14 +168,15 @@ export default function TrackOrder() {
 
                 {/* Progress steps */}
                 <div style={{ position: 'relative', marginBottom: '40px' }}>
-                  {/* Progress line */}
+                  {/* Background line */}
                   <div style={{
-                    position: 'absolute', top: '20px', left: '20px',
+                    position: 'absolute', top: '21px', left: '20px',
                     right: '20px', height: '3px',
                     background: colors.border, borderRadius: '999px'
                   }} />
+                  {/* Progress line */}
                   <div style={{
-                    position: 'absolute', top: '20px', left: '20px',
+                    position: 'absolute', top: '21px', left: '20px',
                     height: '3px', borderRadius: '999px',
                     background: 'linear-gradient(90deg, #2D2D7F, #E8541A)',
                     width: `${(getCurrentStep(order.status) / (STATUS_STEPS.length - 1)) * 100}%`,
@@ -186,25 +188,73 @@ export default function TrackOrder() {
                     {STATUS_STEPS.map((step, i) => {
                       const currentStep = getCurrentStep(order.status)
                       const isCompleted = i <= currentStep
+                      const isActive = i === currentStep && order.status !== 'delivered'
                       const Icon = step.icon
+
                       return (
                         <div key={step.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', flex: 1 }}>
-                          <motion.div
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: isCompleted ? 1.1 : 1 }}
-                            style={{
-                              width: '42px', height: '42px', borderRadius: '50%',
-                              background: isCompleted ? step.color : colors.inputBg,
-                              border: `3px solid ${isCompleted ? step.color : colors.border}`,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              transition: 'all 0.4s', boxShadow: isCompleted ? `0 0 12px ${step.color}44` : 'none'
-                            }}
-                          >
-                            <Icon style={{ width: '18px', height: '18px', color: isCompleted ? 'white' : colors.subtext }} />
-                          </motion.div>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+                            {/* Pulse rings for active step */}
+                            {isActive && (
+                              <>
+                                <motion.div
+                                  animate={{ scale: [1, 1.8, 1], opacity: [0.5, 0, 0.5] }}
+                                  transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                                  style={{
+                                    position: 'absolute',
+                                    width: '42px', height: '42px',
+                                    borderRadius: '50%',
+                                    background: step.color,
+                                    zIndex: 0
+                                  }}
+                                />
+                                <motion.div
+                                  animate={{ scale: [1, 2.3, 1], opacity: [0.3, 0, 0.3] }}
+                                  transition={{ repeat: Infinity, duration: 1.5, delay: 0.3, ease: 'easeInOut' }}
+                                  style={{
+                                    position: 'absolute',
+                                    width: '42px', height: '42px',
+                                    borderRadius: '50%',
+                                    background: step.color,
+                                    zIndex: 0
+                                  }}
+                                />
+                              </>
+                            )}
+
+                            {/* Icon circle */}
+                            <motion.div
+                              initial={{ scale: 0.8 }}
+                              animate={{
+                                scale: isActive ? [1, 1.15, 1] : isCompleted ? 1.1 : 1,
+                              }}
+                              transition={
+                                isActive
+                                  ? { repeat: Infinity, duration: 1.5, ease: 'easeInOut' }
+                                  : { duration: 0.4 }
+                              }
+                              style={{
+                                width: '42px', height: '42px', borderRadius: '50%',
+                                background: isCompleted ? step.color : colors.inputBg,
+                                border: `3px solid ${isCompleted ? step.color : colors.border}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: isActive
+                                  ? `0 0 20px ${step.color}88`
+                                  : isCompleted
+                                  ? `0 0 12px ${step.color}44`
+                                  : 'none',
+                                position: 'relative', zIndex: 1
+                              }}
+                            >
+                              <Icon style={{ width: '18px', height: '18px', color: isCompleted ? 'white' : colors.subtext }} />
+                            </motion.div>
+                          </div>
+
                           <span style={{
-                            fontSize: '11px', fontWeight: isCompleted ? 700 : 500,
-                            color: isCompleted ? colors.text : colors.subtext,
+                            fontSize: '11px',
+                            fontWeight: isCompleted ? 700 : 500,
+                            color: isActive ? step.color : isCompleted ? colors.text : colors.subtext,
                             textAlign: 'center', lineHeight: 1.3
                           }}>
                             {step.label}
@@ -284,7 +334,5 @@ export default function TrackOrder() {
     </div>
   )
 }
-
-
 
 
