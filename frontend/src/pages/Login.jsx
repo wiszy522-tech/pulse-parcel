@@ -117,26 +117,26 @@ export default function Login() {
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        background: colors.card, padding: '48px 24px',
+        background: colors.card, padding: window.innerWidth < 768 ? '24px' : '48px 24px',
         position: 'relative', minHeight: '100vh',
       }}>
 
         {/* Theme toggle */}
-        <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', gap: '6px' }}>
+        <div style={{ position: 'absolute', top: window.innerWidth < 768 ? '16px' : '24px', right: window.innerWidth < 768 ? '12px' : '24px', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {themeOptions.map(({ key, icon, label }) => (
             <button
               key={key}
               onClick={() => setTheme(key)}
               style={{
-                padding: '6px 12px', borderRadius: '999px',
-                fontSize: '12px', fontWeight: 600, border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
+                padding: window.innerWidth < 768 ? '5px 10px' : '6px 12px', borderRadius: '999px',
+                fontSize: window.innerWidth < 768 ? '11px' : '12px', fontWeight: 600, border: 'none',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: window.innerWidth < 768 ? '3px' : '5px',
                 background: theme === key ? '#2D2D7F' : colors.themeBtnBg,
                 color: theme === key ? 'white' : colors.themeBtnText,
                 transition: 'all 0.2s'
               }}
             >
-              {icon} {label}
+              {icon} {window.innerWidth < 768 ? '' : label}
             </button>
           ))}
         </div>
@@ -146,26 +146,26 @@ export default function Login() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: '440px' }}
+          style={{ width: '100%', maxWidth: window.innerWidth < 768 ? '100%' : '440px' }}
         >
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: window.innerWidth < 768 ? '12px' : '16px', marginBottom: window.innerWidth < 768 ? '32px' : '48px' }}>
             <img src="/p_logo.png" alt="Logo" style={{
-              width: '80px', height: '80px', borderRadius: '18px',
+              width: window.innerWidth < 768 ? '60px' : '80px', height: window.innerWidth < 768 ? '60px' : '80px', borderRadius: '18px',
               objectFit: 'contain', background: 'transparent',
               boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
             }} />
             <div>
-              <div style={{ fontWeight: 900, fontSize: '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
-              <div style={{ fontSize: '12px', color: '#E8541A', letterSpacing: '3px', fontWeight: 700 }}>LIMITED</div>
+              <div style={{ fontWeight: 900, fontSize: window.innerWidth < 768 ? '18px' : '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
+              <div style={{ fontSize: window.innerWidth < 768 ? '10px' : '12px', color: '#E8541A', letterSpacing: '2px', fontWeight: 700 }}>LIMITED</div>
             </div>
           </div>
 
           {/* Heading */}
-          <h2 style={{ fontSize: '38px', fontWeight: 900, color: colors.text, marginBottom: '8px', lineHeight: 1.1 }}>
+          <h2 style={{ fontSize: window.innerWidth < 768 ? '28px' : '38px', fontWeight: 900, color: colors.text, marginBottom: '8px', lineHeight: 1.1 }}>
             Welcome back
           </h2>
-          <p style={{ color: colors.subtext, fontSize: '16px', marginBottom: '40px' }}>
+          <p style={{ color: colors.subtext, fontSize: window.innerWidth < 768 ? '14px' : '16px', marginBottom: window.innerWidth < 768 ? '28px' : '40px' }}>
             Sign in to track your parcels
           </p>
 
@@ -173,8 +173,8 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
 
             {/* Email */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: window.innerWidth < 768 ? '13px' : '14px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>
                 Email Address
               </label>
               <div style={{ position: 'relative' }}>
@@ -187,7 +187,7 @@ export default function Login() {
                   placeholder="you@example.com"
                   style={{
                     width: '100%', paddingLeft: '46px', paddingRight: '16px',
-                    paddingTop: '15px', paddingBottom: '15px',
+                    paddingTop: window.innerWidth < 768 ? '12px' : '15px', paddingBottom: window.innerWidth < 768 ? '12px' : '15px',
                     borderRadius: '12px', border: `1.5px solid ${colors.inputBorder}`,
                     background: colors.inputBg, color: colors.inputText,
                     fontSize: '15px', outline: 'none', boxSizing: 'border-box'
@@ -197,8 +197,8 @@ export default function Login() {
             </div>
 
             {/* Password */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
+            <div style={{ marginBottom: window.innerWidth < 768 ? '24px' : '32px' }}>
+              <label style={{ display: 'block', fontSize: window.innerWidth < 768 ? '13px' : '14px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>
                 Password
               </label>
               <div style={{ position: 'relative' }}>
@@ -211,7 +211,7 @@ export default function Login() {
                   placeholder="••••••••"
                   style={{
                     width: '100%', paddingLeft: '46px', paddingRight: '50px',
-                    paddingTop: '15px', paddingBottom: '15px',
+                    paddingTop: window.innerWidth < 768 ? '12px' : '15px', paddingBottom: window.innerWidth < 768 ? '12px' : '15px',
                     borderRadius: '12px', border: `1.5px solid ${colors.inputBorder}`,
                     background: colors.inputBg, color: colors.inputText,
                     fontSize: '15px', outline: 'none', boxSizing: 'border-box'
@@ -237,13 +237,13 @@ export default function Login() {
               type="submit"
               disabled={loading}
               style={{
-                width: '100%', padding: '16px', borderRadius: '12px',
+                width: '100%', padding: window.innerWidth < 768 ? '14px' : '16px', borderRadius: '12px',
                 background: '#2D2D7F', color: 'white',
-                fontWeight: 800, fontSize: '16px', border: 'none',
+                fontWeight: 800, fontSize: window.innerWidth < 768 ? '15px' : '16px', border: 'none',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.6 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: '8px', marginBottom: '16px',
+                gap: '8px', marginBottom: '14px',
                 transition: 'background 0.2s', boxSizing: 'border-box'
               }}
             >
@@ -256,14 +256,14 @@ export default function Login() {
               onClick={() => handleGoogleLogin()}
               disabled={googleLoading}
               style={{
-                width: '100%', padding: '15px', borderRadius: '12px',
+                width: '100%', padding: window.innerWidth < 768 ? '12px' : '15px', borderRadius: '12px',
                 border: `1.5px solid ${colors.inputBorder}`,
                 background: colors.inputBg, color: colors.inputText,
-                fontWeight: 700, fontSize: '15px',
+                fontWeight: 700, fontSize: window.innerWidth < 768 ? '14px' : '15px',
                 cursor: googleLoading ? 'not-allowed' : 'pointer',
                 opacity: googleLoading ? 0.6 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: '10px', marginBottom: '20px',
+                gap: '10px', marginBottom: '16px',
                 transition: 'all 0.2s', boxSizing: 'border-box'
               }}
             >
@@ -277,15 +277,15 @@ export default function Login() {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  Continue with Google
+                  {window.innerWidth < 768 ? 'Google' : 'Continue with Google'}
                 </>
               )}
             </button>
 
             {/* Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1, height: '1px', background: colors.divider }} />
-              <span style={{ color: colors.subtext, fontSize: '13px' }}>or</span>
+              <span style={{ color: colors.subtext, fontSize: window.innerWidth < 768 ? '12px' : '13px' }}>or</span>
               <div style={{ flex: 1, height: '1px', background: colors.divider }} />
             </div>
 
@@ -293,9 +293,9 @@ export default function Login() {
             <Link
               to="/track"
               style={{
-                display: 'block', width: '100%', padding: '15px',
+                display: 'block', width: '100%', padding: window.innerWidth < 768 ? '12px' : '15px',
                 borderRadius: '12px', border: '2px solid #E8541A',
-                color: '#E8541A', fontWeight: 700, fontSize: '15px',
+                color: '#E8541A', fontWeight: 700, fontSize: window.innerWidth < 768 ? '14px' : '15px',
                 textAlign: 'center', textDecoration: 'none',
                 boxSizing: 'border-box', transition: 'all 0.2s'
               }}
@@ -305,7 +305,7 @@ export default function Login() {
           </form>
 
           {/* Register link */}
-          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: '32px', fontSize: '14px' }}>
+          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: window.innerWidth < 768 ? '20px' : '32px', fontSize: window.innerWidth < 768 ? '13px' : '14px' }}>
             Don't have an account?{' '}
             <Link to="/register" style={{ color: '#E8541A', fontWeight: 700, textDecoration: 'none' }}>
               Create one

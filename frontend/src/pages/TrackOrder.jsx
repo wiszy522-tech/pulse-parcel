@@ -59,15 +59,15 @@ export default function TrackOrder() {
         background: isDark
           ? 'linear-gradient(135deg, #0d0d2f 0%, #1a0a1f 100%)'
           : 'linear-gradient(135deg, #2D2D7F 0%, #E8541A 100%)',
-        padding: '80px 24px',
+        padding: window.innerWidth < 768 ? '50px 16px' : '80px 24px',
         textAlign: 'center'
       }}>
         {!isAuthenticated && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '40px' }}>
-            <img src="/p_logo.png" alt="Logo" style={{ width: '56px', height: '56px', borderRadius: '14px', objectFit: 'contain', background: 'white', padding: '6px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: window.innerWidth < 768 ? '10px' : '14px', marginBottom: window.innerWidth < 768 ? '32px' : '40px' }}>
+            <img src="/p_logo.png" alt="Logo" style={{ width: window.innerWidth < 768 ? '44px' : '56px', height: window.innerWidth < 768 ? '44px' : '56px', borderRadius: '14px', objectFit: 'contain', background: 'white', padding: '6px' }} />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 900, fontSize: '22px', color: 'white', letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
-              <div style={{ fontSize: '11px', color: '#F5A623', letterSpacing: '3px', fontWeight: 700 }}>LIMITED</div>
+              <div style={{ fontWeight: 900, fontSize: window.innerWidth < 768 ? '18px' : '22px', color: 'white', letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
+              <div style={{ fontSize: window.innerWidth < 768 ? '9px' : '11px', color: '#F5A623', letterSpacing: '2px', fontWeight: 700 }}>LIMITED</div>
             </div>
           </div>
         )}
@@ -75,11 +75,11 @@ export default function TrackOrder() {
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{ fontSize: '42px', fontWeight: 900, color: 'white', marginBottom: '12px' }}
+          style={{ fontSize: window.innerWidth < 768 ? '28px' : '42px', fontWeight: 900, color: 'white', marginBottom: '12px' }}
         >
           Track Your Parcel
         </motion.h1>
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', marginBottom: '40px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: window.innerWidth < 768 ? '14px' : '16px', marginBottom: window.innerWidth < 768 ? '28px' : '40px' }}>
           Enter your tracking code to see your delivery status
         </p>
 
@@ -88,9 +88,9 @@ export default function TrackOrder() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           onSubmit={handleTrack}
-          style={{ display: 'flex', gap: '12px', maxWidth: '540px', margin: '0 auto' }}
+          style={{ display: 'flex', gap: window.innerWidth < 768 ? '8px' : '12px', maxWidth: '540px', margin: '0 auto', flexWrap: window.innerWidth < 768 ? 'wrap' : 'nowrap', paddingX: window.innerWidth < 768 ? '12px' : '0' }}
         >
-          <div style={{ position: 'relative', flex: 1 }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: window.innerWidth < 768 ? '100%' : 'auto' }}>
             <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '18px', height: '18px' }} />
             <input
               type="text"
@@ -99,12 +99,12 @@ export default function TrackOrder() {
               placeholder="e.g. TRK-A3F9K2M1"
               style={{
                 width: '100%', paddingLeft: '48px', paddingRight: '16px',
-                paddingTop: '16px', paddingBottom: '16px',
+                paddingTop: window.innerWidth < 768 ? '12px' : '16px', paddingBottom: window.innerWidth < 768 ? '12px' : '16px',
                 borderRadius: '14px', border: 'none',
                 background: 'white', color: '#0f172a',
-                fontSize: '16px', outline: 'none',
+                fontSize: window.innerWidth < 768 ? '14px' : '16px', outline: 'none',
                 boxSizing: 'border-box', fontWeight: 600,
-                letterSpacing: '1px'
+                letterSpacing: '0.5px'
               }}
             />
           </div>
@@ -112,18 +112,19 @@ export default function TrackOrder() {
             type="submit"
             disabled={loading}
             style={{
-              padding: '16px 28px', borderRadius: '14px',
+              padding: window.innerWidth < 768 ? '12px 20px' : '16px 28px', borderRadius: '14px',
               background: '#E8541A', color: 'white',
-              fontWeight: 800, fontSize: '15px',
+              fontWeight: 800, fontSize: window.innerWidth < 768 ? '14px' : '15px',
               border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1,
-              display: 'flex', alignItems: 'center', gap: '8px',
-              whiteSpace: 'nowrap'
+              display: 'flex', alignItems: 'center', gap: '6px',
+              whiteSpace: 'nowrap',
+              minWidth: window.innerWidth < 768 ? '100%' : 'auto'
             }}
           >
             {loading
               ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" />
-              : <><Search style={{ width: '16px', height: '16px' }} /> Track</>
+              : <><Search style={{ width: '16px', height: '16px' }} /> {window.innerWidth < 640 ? 'Track' : 'Track Parcel'}</>
             }
           </button>
         </motion.form>
