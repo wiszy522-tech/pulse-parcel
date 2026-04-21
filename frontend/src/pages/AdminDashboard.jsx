@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Package, Plus, Scan, Trash2, Edit, Loader2,
-  ShoppingBag, Truck, CheckCircle, Clock, X, Upload
+  Package, Plus, Scan, Trash2, Loader2,
+  ShoppingBag, Truck, CheckCircle, Clock, X, Upload, Filter
 } from 'lucide-react'
-import Loader from '../components/ui/Loader'
 import toast from 'react-hot-toast'
 import Navbar from '../components/layout/Navbar'
 import api from '../services/api'
@@ -23,6 +22,7 @@ export default function AdminDashboard() {
   const { theme } = useThemeStore()
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState('orders')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [scanCode, setScanCode] = useState('')
   const [scanning, setScanning] = useState(false)
@@ -72,9 +72,14 @@ export default function AdminDashboard() {
   const stats = {
     totalOrders: orders.length,
     pending: orders.filter(o => o.status === 'pending').length,
+    processing: orders.filter(o => o.status === 'processing').length,
     onMove: orders.filter(o => o.status === 'out_for_delivery').length,
     delivered: orders.filter(o => o.status === 'delivered').length,
   }
+
+  const filteredOrders = statusFilter === 'all'
+    ? orders
+    : orders.filter(o => o.status === statusFilter)
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -131,6 +136,14 @@ export default function AdminDashboard() {
     fontSize: '14px', outline: 'none', boxSizing: 'border-box'
   }
 
+  const statCards = [
+    { label: 'Total Orders', value: stats.totalOrders, color: '#2D2D7F', icon: ShoppingBag, filter: 'all' },
+    { label: 'Pending', value: stats.pending, color: '#F5A623', icon: Clock, filter: 'pending' },
+    { label: 'Processing', value: stats.processing, color: '#2D2D7F', icon: Package, filter: 'processing' },
+    { label: 'On the Move', value: stats.onMove, color: '#E8541A', icon: Truck, filter: 'out_for_delivery' },
+    { label: 'Delivered', value: stats.delivered, color: '#10b981', icon: CheckCircle, filter: 'delivered' },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: colors.bg }}>
       <Navbar />
@@ -138,44 +151,50 @@ export default function AdminDashboard() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px' }}>
 
         {/* Header */}
-        <div style={{ marginBottom: '36px' }}>
+        <div style={{ marginBottom: '32px' }}>
           <h1 style={{ fontSize: '32px', fontWeight: 900, color: colors.text, marginBottom: '6px' }}>
             Admin Dashboard
           </h1>
-          <p style={{ color: colors.subtext, fontSize: '15px' }}>Manage products, orders and scan parcels</p>
+          <p style={{ color: colors.subtext, fontSize: '15px' }}>
+            Manage products, orders and scan parcels
+          </p>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '36px' }}>
-          {[
-            { label: 'Total Orders', value: stats.totalOrders, color: '#2D2D7F', icon: ShoppingBag },
-            { label: 'Pending', value: stats.pending, color: '#F5A623', icon: Clock },
-            { label: 'On the Move', value: stats.onMove, color: '#E8541A', icon: Truck },
-            { label: 'Delivered', value: stats.delivered, color: '#10b981', icon: CheckCircle },
-          ].map((stat, i) => {
+        {/* Stats — clickable */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+          {statCards.map((stat, i) => {
             const Icon = stat.icon
+            const isActive = statusFilter === stat.filter
             return (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
+                onClick={() => {
+                  setStatusFilter(stat.filter)
+                  setActiveTab('orders')
+                }}
+                whileHover={{ y: -2 }}
                 style={{
                   background: colors.card, borderRadius: '16px',
-                  border: `1px solid ${colors.border}`, padding: '20px',
-                  display: 'flex', alignItems: 'center', gap: '16px'
+                  border: `2px solid ${isActive ? stat.color : colors.border}`,
+                  padding: '20px', cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: isActive ? `0 4px 20px ${stat.color}33` : 'none',
+                  display: 'flex', alignItems: 'center', gap: '14px'
                 }}
               >
                 <div style={{
-                  width: '48px', height: '48px', borderRadius: '12px',
-                  background: `${stat.color}18`,
+                  width: '44px', height: '44px', borderRadius: '12px',
+                  background: `${stat.color}18`, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  <Icon style={{ width: '22px', height: '22px', color: stat.color }} />
+                  <Icon style={{ width: '20px', height: '20px', color: stat.color }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '28px', fontWeight: 900, color: stat.color }}>{stat.value}</div>
-                  <div style={{ fontSize: '12px', color: colors.subtext, fontWeight: 600 }}>{stat.label}</div>
+                  <div style={{ fontSize: '26px', fontWeight: 900, color: stat.color, lineHeight: 1 }}>{stat.value}</div>
+                  <div style={{ fontSize: '11px', color: colors.subtext, fontWeight: 600, marginTop: '3px' }}>{stat.label}</div>
                 </div>
               </motion.div>
             )
@@ -208,10 +227,13 @@ export default function AdminDashboard() {
                 fontWeight: 700, fontSize: '14px',
                 border: 'none', cursor: scanning ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', gap: '8px',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap', opacity: scanning ? 0.6 : 1
               }}
             >
-              {scanning ? <Loader2 style={{ width: '16px', height: '16px' }} className="animate-spin" /> : <><Scan style={{ width: '16px', height: '16px' }} /> Scan</>}
+              {scanning
+                ? <Loader2 style={{ width: '16px', height: '16px' }} className="animate-spin" />
+                : <><Scan style={{ width: '16px', height: '16px' }} /> Scan</>
+              }
             </button>
           </form>
           <p style={{ fontSize: '12px', color: colors.subtext, marginTop: '10px' }}>
@@ -220,7 +242,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center' }}>
           {['orders', 'products'].map(tab => (
             <button
               key={tab}
@@ -231,13 +253,13 @@ export default function AdminDashboard() {
                 fontWeight: 700, fontSize: '14px',
                 background: activeTab === tab ? '#2D2D7F' : colors.card,
                 color: activeTab === tab ? 'white' : colors.subtext,
-                transition: 'all 0.2s',
-                textTransform: 'capitalize'
+                transition: 'all 0.2s', textTransform: 'capitalize'
               }}
             >
               {tab}
             </button>
           ))}
+
           {activeTab === 'products' && (
             <button
               onClick={() => setShowAddProduct(true)}
@@ -253,55 +275,86 @@ export default function AdminDashboard() {
               <Plus style={{ width: '16px', height: '16px' }} /> Add Product
             </button>
           )}
+
+          {/* Active filter badge */}
+          {activeTab === 'orders' && statusFilter !== 'all' && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              marginLeft: 'auto', background: STATUS_CONFIG[statusFilter]?.bg,
+              padding: '6px 14px', borderRadius: '999px'
+            }}>
+              <Filter style={{ width: '13px', height: '13px', color: STATUS_CONFIG[statusFilter]?.color }} />
+              <span style={{ fontSize: '13px', fontWeight: 700, color: STATUS_CONFIG[statusFilter]?.color, textTransform: 'capitalize' }}>
+                {statusFilter.replace(/_/g, ' ')}
+              </span>
+              <button
+                onClick={() => setStatusFilter('all')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: STATUS_CONFIG[statusFilter]?.color, padding: 0, display: 'flex' }}
+              >
+                <X style={{ width: '14px', height: '14px' }} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {ordersLoading ? (
-              <Loader fullscreen={false} />
-            ) : orders.map((order, i) => {
-              const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending
-              return (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  style={{
-                    background: colors.card, borderRadius: '14px',
-                    border: `1px solid ${colors.border}`,
-                    padding: '20px 24px',
-                    display: 'flex', alignItems: 'center',
-                    justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px'
-                  }}
-                >
-                  <div>
-                    <p style={{ fontSize: '15px', fontWeight: 800, color: colors.text, letterSpacing: '1px', margin: 0 }}>
-                      {order.tracking_code}
-                    </p>
-                    <p style={{ fontSize: '13px', color: colors.subtext, margin: '4px 0 0' }}>
-                      {order.full_name} · {order.email}
-                    </p>
-                    <p style={{ fontSize: '12px', color: colors.subtext, margin: '2px 0 0' }}>
-                      {new Date(order.created_at).toLocaleDateString()} · {order.items?.length} item(s)
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{
-                      padding: '5px 14px', borderRadius: '999px',
-                      background: statusCfg.bg, color: statusCfg.color,
-                      fontSize: '12px', fontWeight: 700
-                    }}>
-                      {statusCfg.label}
-                    </span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#E8541A' }}>
-                      ₦{Number(order.total_amount).toLocaleString()}
-                    </span>
-                  </div>
-                </motion.div>
-              )
-            })}
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
+                <Loader2 style={{ width: '36px', height: '36px', color: '#2D2D7F' }} className="animate-spin" />
+              </div>
+            ) : filteredOrders.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: colors.subtext }}>
+                <Package style={{ width: '48px', height: '48px', margin: '0 auto 16px', opacity: 0.3 }} />
+                <p style={{ fontSize: '16px', fontWeight: 600 }}>
+                  No {statusFilter !== 'all' ? statusFilter.replace(/_/g, ' ') : ''} orders found
+                </p>
+              </div>
+            ) : (
+              filteredOrders.map((order, i) => {
+                const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending
+                return (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    style={{
+                      background: colors.card, borderRadius: '14px',
+                      border: `1px solid ${colors.border}`,
+                      padding: '20px 24px',
+                      display: 'flex', alignItems: 'center',
+                      justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px'
+                    }}
+                  >
+                    <div>
+                      <p style={{ fontSize: '15px', fontWeight: 800, color: colors.text, letterSpacing: '1px', margin: 0 }}>
+                        {order.tracking_code}
+                      </p>
+                      <p style={{ fontSize: '13px', color: colors.subtext, margin: '4px 0 0' }}>
+                        {order.full_name} · {order.email}
+                      </p>
+                      <p style={{ fontSize: '12px', color: colors.subtext, margin: '2px 0 0' }}>
+                        {new Date(order.created_at).toLocaleDateString()} · {order.items?.length} item(s)
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{
+                        padding: '5px 14px', borderRadius: '999px',
+                        background: statusCfg.bg, color: statusCfg.color,
+                        fontSize: '12px', fontWeight: 700
+                      }}>
+                        {statusCfg.label}
+                      </span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#E8541A' }}>
+                        ₦{Number(order.total_amount).toLocaleString()}
+                      </span>
+                    </div>
+                  </motion.div>
+                )
+              })
+            )}
           </div>
         )}
 
@@ -309,49 +362,73 @@ export default function AdminDashboard() {
         {activeTab === 'products' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
             {productsLoading ? (
-              <Loader fullscreen={false} />
-            ) : products.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06 }}
-                style={{
-                  background: colors.card, borderRadius: '14px',
-                  border: `1px solid ${colors.border}`, overflow: 'hidden'
-                }}
-              >
-                <div style={{ height: '150px', background: isDark ? '#1a1a2e' : '#f1f5f9', overflow: 'hidden' }}>
-                  {product.image
-                    ? <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                        <Package style={{ width: '36px', height: '36px', color: colors.subtext, opacity: 0.4 }} />
-                      </div>
-                  }
-                </div>
-                <div style={{ padding: '16px' }}>
-                  <h4 style={{ fontSize: '15px', fontWeight: 800, color: colors.text, margin: '0 0 4px' }}>{product.name}</h4>
-                  <p style={{ fontSize: '13px', color: colors.subtext, margin: '0 0 12px' }}>Stock: {product.stock}</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#E8541A' }}>₦{Number(product.price).toLocaleString()}</span>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Delete this product?')) deleteProductMutation.mutate(product.id)
-                      }}
-                      style={{
-                        padding: '7px 12px', borderRadius: '8px',
-                        border: 'none', cursor: 'pointer',
-                        background: 'rgba(239,68,68,0.1)', color: '#ef4444',
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        fontSize: '13px', fontWeight: 600
-                      }}
-                    >
-                      <Trash2 style={{ width: '14px', height: '14px' }} /> Delete
-                    </button>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '60px', gridColumn: '1/-1' }}>
+                <Loader2 style={{ width: '36px', height: '36px', color: '#2D2D7F' }} className="animate-spin" />
+              </div>
+            ) : products.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: colors.subtext }}>
+                <Package style={{ width: '48px', height: '48px', margin: '0 auto 16px', opacity: 0.3 }} />
+                <p style={{ fontSize: '16px', fontWeight: 600 }}>No products yet</p>
+                <button
+                  onClick={() => setShowAddProduct(true)}
+                  style={{
+                    marginTop: '16px', padding: '10px 24px', borderRadius: '10px',
+                    background: '#2D2D7F', color: 'white', border: 'none',
+                    fontWeight: 700, cursor: 'pointer', fontSize: '14px'
+                  }}
+                >
+                  Add First Product
+                </button>
+              </div>
+            ) : (
+              products.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  style={{
+                    background: colors.card, borderRadius: '14px',
+                    border: `1px solid ${colors.border}`, overflow: 'hidden'
+                  }}
+                >
+                  <div style={{ height: '150px', background: isDark ? '#1a1a2e' : '#f1f5f9', overflow: 'hidden' }}>
+                    {product.image
+                      ? <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                          <Package style={{ width: '36px', height: '36px', color: colors.subtext, opacity: 0.4 }} />
+                        </div>
+                    }
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  <div style={{ padding: '16px' }}>
+                    <h4 style={{ fontSize: '15px', fontWeight: 800, color: colors.text, margin: '0 0 4px' }}>{product.name}</h4>
+                    <p style={{ fontSize: '13px', color: colors.subtext, margin: '0 0 4px' }}>Stock: {product.stock}</p>
+                    <p style={{ fontSize: '12px', color: product.stock <= 5 ? '#ef4444' : '#10b981', fontWeight: 600, margin: '0 0 12px' }}>
+                      {product.stock === 0 ? '● Out of Stock' : product.stock <= 5 ? '● Low Stock' : '● In Stock'}
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#E8541A' }}>
+                        ₦{Number(product.price).toLocaleString()}
+                      </span>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Delete this product?')) deleteProductMutation.mutate(product.id)
+                        }}
+                        style={{
+                          padding: '7px 12px', borderRadius: '8px',
+                          border: 'none', cursor: 'pointer',
+                          background: 'rgba(239,68,68,0.1)', color: '#ef4444',
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                          fontSize: '13px', fontWeight: 600
+                        }}
+                      >
+                        <Trash2 style={{ width: '14px', height: '14px' }} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
         )}
       </div>
@@ -385,8 +462,10 @@ export default function AdminDashboard() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
                 <h3 style={{ fontSize: '22px', fontWeight: 900, color: colors.text, margin: 0 }}>Add New Product</h3>
-                <button onClick={() => setShowAddProduct(false)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.subtext, padding: 0 }}>
+                <button
+                  onClick={() => setShowAddProduct(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.subtext, padding: 0 }}
+                >
                   <X style={{ width: '22px', height: '22px' }} />
                 </button>
               </div>
@@ -395,7 +474,9 @@ export default function AdminDashboard() {
 
                 {/* Image upload */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.subtext, marginBottom: '8px' }}>Product Image</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.subtext, marginBottom: '8px' }}>
+                    Product Image
+                  </label>
                   <div
                     onClick={() => document.getElementById('img-upload').click()}
                     style={{
@@ -403,7 +484,7 @@ export default function AdminDashboard() {
                       border: `2px dashed ${colors.inputBorder}`,
                       background: colors.inputBg, cursor: 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      overflow: 'hidden', position: 'relative'
+                      overflow: 'hidden'
                     }}
                   >
                     {imagePreview
@@ -461,7 +542,10 @@ export default function AdminDashboard() {
                     marginTop: '8px'
                   }}
                 >
-                  {submitting ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" /> : 'Add Product'}
+                  {submitting
+                    ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" />
+                    : 'Add Product'
+                  }
                 </button>
               </form>
             </motion.div>
@@ -471,6 +555,10 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
+
+
+
 
 
 
