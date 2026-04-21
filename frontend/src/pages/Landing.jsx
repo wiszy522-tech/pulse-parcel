@@ -66,7 +66,7 @@ export default function Landing() {
       {/* Hero */}
       <div style={{
         position: 'relative', overflow: 'hidden',
-        padding: '100px 24px',
+        padding: window.innerWidth < 768 ? '60px 16px' : '100px 24px',
         background: isDark
           ? 'linear-gradient(135deg, #0d0d2f 0%, #1a0a0f 100%)'
           : 'linear-gradient(135deg, #2D2D7F 0%, #E8541A 100%)',
@@ -86,11 +86,12 @@ export default function Landing() {
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)',
               border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: '999px', padding: '6px 16px',
-              marginBottom: '28px'
+              borderRadius: '999px', padding: window.innerWidth < 768 ? '5px 10px' : '6px 16px',
+              marginBottom: window.innerWidth < 768 ? '16px' : '28px',
+              fontSize: window.innerWidth < 768 ? '10px' : '12px'
             }}
           >
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.9)', fontWeight: 600, letterSpacing: '1px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600, letterSpacing: window.innerWidth < 768 ? '0px' : '1px' }}>
               🚀 FAST · RELIABLE · TRACKABLE
             </span>
           </motion.div>
@@ -99,7 +100,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            style={{ fontSize: '64px', fontWeight: 900, color: 'white', lineHeight: 1.05, marginBottom: '24px' }}
+            style={{ fontSize: window.innerWidth < 640 ? '32px' : window.innerWidth < 1024 ? '48px' : '64px', fontWeight: 900, color: 'white', lineHeight: 1.1, marginBottom: window.innerWidth < 768 ? '16px' : '24px' }}
           >
             Delivering More<br />Than Parcels.<br />
             <span style={{ color: '#F5A623' }}>Delivering Trust.</span>
@@ -109,7 +110,7 @@ export default function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            style={{ fontSize: '18px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: '40px', maxWidth: '560px', margin: '0 auto 40px' }}
+            style={{ fontSize: window.innerWidth < 768 ? '14px' : '18px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, marginBottom: window.innerWidth < 768 ? '24px' : '40px', maxWidth: '560px', margin: `0 auto ${window.innerWidth < 768 ? '24px' : '40px'}` }}
           >
             Order products, track parcels in real time, and get email notifications at every step of your delivery journey.
           </motion.p>
@@ -118,14 +119,14 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}
+            style={{ display: 'flex', gap: window.innerWidth < 768 ? '10px' : '16px', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             <button
               onClick={() => navigate(isAuthenticated ? '/products' : '/register')}
               style={{
-                padding: '16px 36px', borderRadius: '14px',
+                padding: window.innerWidth < 768 ? '14px 24px' : '16px 36px', borderRadius: '14px',
                 background: '#E8541A', color: 'white',
-                fontWeight: 800, fontSize: '16px', border: 'none',
+                fontWeight: 800, fontSize: window.innerWidth < 768 ? '14px' : '16px', border: 'none',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
                 boxShadow: '0 8px 24px rgba(232,84,26,0.4)'
               }}
@@ -135,9 +136,9 @@ export default function Landing() {
             <button
               onClick={() => navigate('/track')}
               style={{
-                padding: '16px 36px', borderRadius: '14px',
+                padding: window.innerWidth < 768 ? '14px 24px' : '16px 36px', borderRadius: '14px',
                 background: 'rgba(255,255,255,0.15)', color: 'white',
-                fontWeight: 700, fontSize: '16px',
+                fontWeight: 700, fontSize: window.innerWidth < 768 ? '14px' : '16px',
                 border: '1px solid rgba(255,255,255,0.3)',
                 cursor: 'pointer', backdropFilter: 'blur(8px)'
               }}
@@ -149,15 +150,15 @@ export default function Landing() {
       </div>
 
       {/* Features */}
-      <div style={{ padding: '80px 24px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-          <h2 style={{ fontSize: '40px', fontWeight: 900, color: colors.text, marginBottom: '12px' }}>
+      <div style={{ padding: window.innerWidth < 768 ? '50px 16px' : '80px 24px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: window.innerWidth < 768 ? '32px' : '56px' }}>
+          <h2 style={{ fontSize: window.innerWidth < 768 ? '26px' : '40px', fontWeight: 900, color: colors.text, marginBottom: '12px' }}>
             Why Choose Pulse Parcel?
           </h2>
-          <p style={{ color: colors.subtext, fontSize: '16px' }}>Built for speed, reliability and complete transparency</p>
+          <p style={{ color: colors.subtext, fontSize: window.innerWidth < 768 ? '14px' : '16px' }}>Built for speed, reliability and complete transparency</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 640 ? '1fr' : window.innerWidth < 1024 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: window.innerWidth < 768 ? '16px' : '24px' }}>
           {features.map((f, i) => {
             const Icon = f.icon
             return (
@@ -168,8 +169,8 @@ export default function Landing() {
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
                 style={{
-                  background: colors.card, borderRadius: '20px',
-                  border: `1px solid ${colors.border}`, padding: '32px',
+                  background: colors.card, borderRadius: '16px',
+                  border: `1px solid ${colors.border}`, padding: window.innerWidth < 768 ? '20px' : '32px',
                 }}
                 whileHover={{ y: -4 }}
               >
@@ -181,8 +182,8 @@ export default function Landing() {
                 }}>
                   <Icon style={{ width: '24px', height: '24px', color: f.color }} />
                 </div>
-                <h3 style={{ fontSize: '20px', fontWeight: 800, color: colors.text, marginBottom: '10px' }}>{f.title}</h3>
-                <p style={{ color: colors.subtext, fontSize: '15px', lineHeight: 1.6 }}>{f.desc}</p>
+                <h3 style={{ fontSize: window.innerWidth < 768 ? '17px' : '20px', fontWeight: 800, color: colors.text, marginBottom: '10px' }}>{f.title}</h3>
+                <p style={{ color: colors.subtext, fontSize: '14px', lineHeight: 1.6 }}>{f.desc}</p>
               </motion.div>
             )
           })}
@@ -249,7 +250,7 @@ export default function Landing() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <img src="/p_logo.png" alt="Logo" style={{ width: '140px', height: '140px', objectFit: 'contain', margin: '0 auto 24px', display: 'block' }} />
+            <img src="/p_logo.png" alt="Logo" style={{ width: window.innerWidth < 768 ? '200px' : '280px', height: window.innerWidth < 768 ? '200px' : '280px', objectFit: 'contain', margin: '0 auto 32px', display: 'block' }} />
             <h2 style={{ fontSize: '40px', fontWeight: 900, color: colors.text, marginBottom: '16px' }}>
               Ready to Get Started?
             </h2>
