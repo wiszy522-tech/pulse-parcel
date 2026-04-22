@@ -271,7 +271,7 @@ export default function Landing() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <img src="/p_logo.png" alt="Logo" style={{ width: '260px', height: '260px', objectFit: 'contain', margin: '0 auto 24px', display: 'block' }} />
+            <img src="/p_logo.png" alt="Logo" style={{ width: '300px', height: '300px', objectFit: 'contain', margin: '0 auto 24px', display: 'block' }} />
             <h2 style={{ fontSize: '40px', fontWeight: 900, color: colors.text, marginBottom: '16px' }}>
               Ready to Get Started?
             </h2>
@@ -319,7 +319,7 @@ export default function Landing() {
             {/* Brand */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <img src="/p_logo.png" alt="Logo" style={{ width: '68px', height: '68px', objectFit: 'contain' }} />
+                <img src="/p_logo.png" alt="Logo" style={{ width: '72px', height: '72px', objectFit: 'contain' }} />
                 <div>
                   <div style={{ fontWeight: 900, fontSize: '16px', color: colors.text }}>PULSE PARCEL</div>
                   <div style={{ fontSize: '10px', color: '#E8541A', letterSpacing: '2px', fontWeight: 700 }}>LIMITED</div>

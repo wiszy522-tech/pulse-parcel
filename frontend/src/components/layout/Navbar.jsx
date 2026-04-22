@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { LogOut, Menu, X, Sun, Moon, Monitor, ShieldCheck } from 'lucide-react'
+import { LogOut, Menu, X, Sun, Moon, Monitor, ShieldCheck, Package, MapPin, LayoutDashboard } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../../services/api'
 import useAuthStore from '../../store/authStore'
@@ -41,6 +41,13 @@ export default function Navbar() {
     { key: 'system', icon: <Monitor style={{ width: '13px', height: '13px' }} />, label: 'System' },
   ]
 
+  const navLinks = [
+    { to: '/products', label: 'Products', icon: <Package style={{ width: '15px', height: '15px' }} /> },
+    { to: '/track', label: 'Track Parcel', icon: <MapPin style={{ width: '15px', height: '15px' }} /> },
+    { to: '/dashboard', label: 'My Orders', icon: <LayoutDashboard style={{ width: '15px', height: '15px' }} /> },
+    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: <ShieldCheck style={{ width: '15px', height: '15px' }} /> }] : []),
+  ]
+
   return (
     <nav style={{
       background: colors.bg,
@@ -50,26 +57,48 @@ export default function Navbar() {
     }}>
       <div style={{
         maxWidth: '1200px', margin: '0 auto',
-        padding: '0 16px',
+        padding: '0 20px',
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
-        height: isMobile ? '56px' : '64px'
+        height: isMobile ? '58px' : '68px'
       }}>
 
         {/* Logo */}
-        <Link to="/products" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/p_logo.png" alt="Logo" style={{ width: isMobile ? '32px' : '42px', height: isMobile ? '32px' : '42px', objectFit: 'contain' }} />
-          {!isMobile && (
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '16px', color: colors.text, letterSpacing: '-0.3px', lineHeight: 1.1 }}>PULSE PARCEL</div>
-              <div style={{ fontSize: '10px', color: '#E8541A', letterSpacing: '2px', fontWeight: 700 }}>LIMITED</div>
-            </div>
-          )}
+        <Link to="/products" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <img src="/p_logo.png" alt="Logo" style={{
+            width: isMobile ? '36px' : '48px',
+            height: isMobile ? '36px' : '48px',
+            objectFit: 'contain'
+          }} />
+          <div>
+            <div style={{ fontWeight: 900, fontSize: isMobile ? '13px' : '17px', color: colors.text, letterSpacing: '-0.3px', lineHeight: 1.1 }}>PULSE PARCEL</div>
+            <div style={{ fontSize: isMobile ? '9px' : '10px', color: '#E8541A', letterSpacing: '2px', fontWeight: 700 }}>LIMITED</div>
+          </div>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop nav links — center */}
         {!isMobile && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {navLinks.map(({ to, label, icon }) => (
+              <Link key={to} to={to} style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '8px 14px', borderRadius: '10px',
+                textDecoration: 'none', fontSize: '14px', fontWeight: 600,
+                color: location.pathname === to ? '#2D2D7F' : colors.subtext,
+                background: location.pathname === to
+                  ? (isDark ? 'rgba(45,45,127,0.2)' : 'rgba(45,45,127,0.08)')
+                  : 'transparent',
+                transition: 'all 0.2s'
+              }}>
+                {icon} {label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Desktop right side */}
+        {!isMobile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {/* Theme toggle */}
             <div style={{ display: 'flex', gap: '3px', background: colors.hover, borderRadius: '8px', padding: '3px' }}>
               {themeOptions.map(({ key, icon }) => (
@@ -82,7 +111,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Avatar */}
+            {/* Avatar + name */}
             <img
               src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`}
               alt="avatar"
@@ -92,35 +121,25 @@ export default function Navbar() {
               {user?.full_name?.split(' ')[0] || user?.email?.split('@')[0]}
             </span>
 
-            {user?.role === 'admin' && (
-              <Link to="/admin" style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                padding: '7px 14px', borderRadius: '8px',
-                background: location.pathname === '/admin' ? 'rgba(45,45,127,0.15)' : 'transparent',
-                color: '#2D2D7F', fontWeight: 700, fontSize: '13px', textDecoration: 'none'
-              }}>
-                <ShieldCheck style={{ width: '14px', height: '14px' }} /> Admin
-              </Link>
-            )}
-
+            {/* Logout */}
             <button onClick={handleLogout} style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              padding: '7px 14px', borderRadius: '8px', border: 'none',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '8px 14px', borderRadius: '10px', border: 'none',
               cursor: 'pointer', background: 'transparent',
-              color: '#E8541A', fontWeight: 600, fontSize: '13px'
+              color: '#E8541A', fontWeight: 600, fontSize: '14px'
             }}>
-              <LogOut style={{ width: '14px', height: '14px' }} /> Logout
+              <LogOut style={{ width: '15px', height: '15px' }} /> Logout
             </button>
           </div>
         )}
 
-        {/* Mobile right side */}
+        {/* Mobile right */}
         {isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img
               src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`}
               alt="avatar"
-              style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid #E8541A' }}
+              style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid #E8541A' }}
             />
             <button onClick={() => setMenuOpen(!menuOpen)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.text, padding: 0 }}>
@@ -130,10 +149,11 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* Mobile dropdown */}
       {isMobile && menuOpen && (
         <div style={{ background: colors.bg, borderTop: `1px solid ${colors.border}`, padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '16px', borderBottom: `1px solid ${colors.border}`, marginBottom: '12px' }}>
+          {/* User info */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '14px', borderBottom: `1px solid ${colors.border}`, marginBottom: '12px' }}>
             <img src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`}
               alt="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #E8541A' }} />
             <div>
@@ -142,6 +162,7 @@ export default function Navbar() {
             </div>
           </div>
 
+          {/* Theme */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
             {themeOptions.map(({ key, icon, label }) => (
               <button key={key} onClick={() => setTheme(key)} style={{
@@ -155,6 +176,7 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Logout */}
           <button onClick={handleLogout} style={{
             width: '100%', padding: '12px', borderRadius: '10px',
             background: 'rgba(232,84,26,0.08)', border: 'none', cursor: 'pointer',
@@ -168,4 +190,7 @@ export default function Navbar() {
     </nav>
   )
 }
+
+
+
 
