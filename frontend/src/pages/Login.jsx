@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import api from '../services/api'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
+import useIsMobile from '../hooks/useIsMobile'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -17,6 +18,7 @@ export default function Login() {
   const { setAuth } = useAuthStore()
   const { theme, setTheme } = useThemeStore()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
@@ -73,70 +75,77 @@ export default function Login() {
   ]
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg, paddingBottom: '90px' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg }}>
 
-      {/* Left side - Logistics Image */}
-      <div style={{ width: '50%', position: 'relative', overflow: 'hidden' }}
-        className="hidden lg:block">
-        <img
-          src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&auto=format&fit=crop"
-          alt="Logistics"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, rgba(45,45,127,0.85) 0%, rgba(45,45,127,0.65) 50%, rgba(232,84,26,0.55) 100%)'
-        }} />
-        <div style={{
-          position: 'relative', zIndex: 10,
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'flex-end',
-          padding: '56px', color: 'white', height: '100%'
-        }}>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            style={{ fontSize: '52px', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}
-          >
-            Fast. Reliable.<br />
-            <span style={{ color: '#F5A623' }}>Trackable.</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            style={{ color: 'rgba(255,255,255,0.7)', fontSize: '18px', lineHeight: 1.7 }}
-          >
-            Your parcels, delivered with precision<br />and tracked in real time.
-          </motion.p>
+      {/* Left side image — desktop only */}
+      {!isMobile && (
+        <div style={{ width: '50%', position: 'relative', overflow: 'hidden' }}>
+          <img
+            src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&auto=format&fit=crop"
+            alt="Logistics"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(135deg, rgba(45,45,127,0.85) 0%, rgba(45,45,127,0.65) 50%, rgba(232,84,26,0.55) 100%)'
+          }} />
+          <div style={{
+            position: 'relative', zIndex: 10,
+            display: 'flex', flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '56px', color: 'white', height: '100%'
+          }}>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              style={{ fontSize: '52px', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}
+            >
+              Fast. Reliable.<br />
+              <span style={{ color: '#F5A623' }}>Trackable.</span>
+            </motion.h1>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '18px', lineHeight: 1.7 }}>
+              Your parcels, delivered with precision<br />and tracked in real time.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Right side - Login Form */}
+      {/* Right side — form */}
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        background: colors.card, padding: '48px 24px',
+        background: isMobile
+          ? (isDark ? '#080816' : '#f8fafc')
+          : colors.card,
+        padding: isMobile ? '24px 20px' : '48px 24px',
         position: 'relative', minHeight: '100vh',
       }}>
 
+        {/* Mobile background image */}
+        {isMobile && (
+          <>
+            <div style={{
+              position: 'absolute', inset: 0, zIndex: 0,
+              backgroundImage: 'url(https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop)',
+              backgroundSize: 'cover', backgroundPosition: 'center',
+              opacity: 0.08
+            }} />
+          </>
+        )}
+
         {/* Theme toggle */}
-        <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', gap: '6px' }}>
+        <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '4px', zIndex: 10 }}>
           {themeOptions.map(({ key, icon, label }) => (
-            <button
-              key={key}
-              onClick={() => setTheme(key)}
-              style={{
-                padding: '6px 12px', borderRadius: '999px',
-                fontSize: '12px', fontWeight: 600, border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-                background: theme === key ? '#2D2D7F' : colors.themeBtnBg,
-                color: theme === key ? 'white' : colors.themeBtnText,
-                transition: 'all 0.2s'
-              }}
-            >
-              {icon} {label}
+            <button key={key} onClick={() => setTheme(key)} style={{
+              padding: '5px 10px', borderRadius: '999px',
+              fontSize: '11px', fontWeight: 600, border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+              background: theme === key ? '#2D2D7F' : colors.themeBtnBg,
+              color: theme === key ? 'white' : colors.themeBtnText,
+              transition: 'all 0.2s'
+            }}>
+              {icon} {!isMobile && label}
             </button>
           ))}
         </div>
@@ -146,48 +155,41 @@ export default function Login() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: '440px' }}
+          style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}
         >
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px' }}>
+          {/* Logo — always visible, bigger on mobile */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: isMobile ? '32px' : '48px', justifyContent: isMobile ? 'center' : 'flex-start' }}>
             <img src="/p_logo.png" alt="Logo" style={{
-              width: '80px', height: '80px', borderRadius: '18px',
-              objectFit: 'contain', background: 'transparent',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+              width: isMobile ? '100px' : '80px',
+              height: isMobile ? '100px' : '80px',
+              borderRadius: '20px', objectFit: 'contain',
+              background: isDark ? 'rgba(255,255,255,0.05)' : 'white',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.15)'
             }} />
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
+            <div style={{ textAlign: isMobile ? 'left' : 'left' }}>
+              <div style={{ fontWeight: 900, fontSize: isMobile ? '22px' : '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
               <div style={{ fontSize: '12px', color: '#E8541A', letterSpacing: '3px', fontWeight: 700 }}>LIMITED</div>
             </div>
           </div>
 
-          {/* Heading */}
-          <h2 style={{ fontSize: '38px', fontWeight: 900, color: colors.text, marginBottom: '8px', lineHeight: 1.1 }}>
+          <h2 style={{ fontSize: isMobile ? '28px' : '38px', fontWeight: 900, color: colors.text, marginBottom: '6px', lineHeight: 1.1, textAlign: isMobile ? 'center' : 'left' }}>
             Welcome back
           </h2>
-          <p style={{ color: colors.subtext, fontSize: '16px', marginBottom: '40px' }}>
+          <p style={{ color: colors.subtext, fontSize: '15px', marginBottom: '32px', textAlign: isMobile ? 'center' : 'left' }}>
             Sign in to track your parcels
           </p>
 
-          {/* Form */}
           <form onSubmit={handleSubmit}>
 
             {/* Email */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
-                Email Address
-              </label>
+            <div style={{ marginBottom: '18px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>Email Address</label>
               <div style={{ position: 'relative' }}>
-                <Mail style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="you@example.com"
+                <Mail style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com"
                   style={{
-                    width: '100%', paddingLeft: '46px', paddingRight: '16px',
-                    paddingTop: '15px', paddingBottom: '15px',
+                    width: '100%', paddingLeft: '44px', paddingRight: '16px',
+                    paddingTop: '14px', paddingBottom: '14px',
                     borderRadius: '12px', border: `1.5px solid ${colors.inputBorder}`,
                     background: colors.inputBg, color: colors.inputText,
                     fontSize: '15px', outline: 'none', boxSizing: 'border-box'
@@ -197,79 +199,51 @@ export default function Login() {
             </div>
 
             {/* Password */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
-                Password
-              </label>
+            <div style={{ marginBottom: '28px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>Password</label>
               <div style={{ position: 'relative' }}>
-                <Lock style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="••••••••"
+                <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••"
                   style={{
-                    width: '100%', paddingLeft: '46px', paddingRight: '50px',
-                    paddingTop: '15px', paddingBottom: '15px',
+                    width: '100%', paddingLeft: '44px', paddingRight: '48px',
+                    paddingTop: '14px', paddingBottom: '14px',
                     borderRadius: '12px', border: `1.5px solid ${colors.inputBorder}`,
                     background: colors.inputBg, color: colors.inputText,
                     fontSize: '15px', outline: 'none', boxSizing: 'border-box'
                   }}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute', right: '16px', top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    color: '#6b7280', padding: 0
-                  }}
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0 }}>
                   {showPassword ? <EyeOff style={{ width: '17px', height: '17px' }} /> : <Eye style={{ width: '17px', height: '17px' }} />}
                 </button>
               </div>
             </div>
 
-            {/* Sign In Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%', padding: '16px', borderRadius: '12px',
-                background: '#2D2D7F', color: 'white',
-                fontWeight: 800, fontSize: '16px', border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.6 : 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: '8px', marginBottom: '16px',
-                transition: 'background 0.2s', boxSizing: 'border-box'
-              }}
-            >
+            {/* Sign In */}
+            <button type="submit" disabled={loading} style={{
+              width: '100%', padding: '15px', borderRadius: '12px',
+              background: '#2D2D7F', color: 'white', fontWeight: 800,
+              fontSize: '16px', border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              marginBottom: '14px', boxSizing: 'border-box'
+            }}>
               {loading ? <Loader2 style={{ width: '20px', height: '20px' }} className="animate-spin" /> : 'Sign In'}
             </button>
 
-            {/* Google Login */}
-            <button
-              type="button"
-              onClick={() => handleGoogleLogin()}
-              disabled={googleLoading}
-              style={{
-                width: '100%', padding: '15px', borderRadius: '12px',
-                border: `1.5px solid ${colors.inputBorder}`,
-                background: colors.inputBg, color: colors.inputText,
-                fontWeight: 700, fontSize: '15px',
-                cursor: googleLoading ? 'not-allowed' : 'pointer',
-                opacity: googleLoading ? 0.6 : 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: '10px', marginBottom: '20px',
-                transition: 'all 0.2s', boxSizing: 'border-box'
-              }}
-            >
-              {googleLoading ? (
-                <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" />
-              ) : (
+            {/* Google */}
+            <button type="button" onClick={() => handleGoogleLogin()} disabled={googleLoading} style={{
+              width: '100%', padding: '14px', borderRadius: '12px',
+              border: `1.5px solid ${colors.inputBorder}`,
+              background: colors.inputBg, color: colors.inputText,
+              fontWeight: 700, fontSize: '15px',
+              cursor: googleLoading ? 'not-allowed' : 'pointer',
+              opacity: googleLoading ? 0.6 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: '10px', marginBottom: '20px', boxSizing: 'border-box'
+            }}>
+              {googleLoading ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" /> : (
                 <>
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -283,39 +257,36 @@ export default function Login() {
             </button>
 
             {/* Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1, height: '1px', background: colors.divider }} />
               <span style={{ color: colors.subtext, fontSize: '13px' }}>or</span>
               <div style={{ flex: 1, height: '1px', background: colors.divider }} />
             </div>
 
             {/* Track without login */}
-            <Link
-              to="/track"
-              style={{
-                display: 'block', width: '100%', padding: '15px',
-                borderRadius: '12px', border: '2px solid #E8541A',
-                color: '#E8541A', fontWeight: 700, fontSize: '15px',
-                textAlign: 'center', textDecoration: 'none',
-                boxSizing: 'border-box', transition: 'all 0.2s'
-              }}
-            >
+            <Link to="/track" style={{
+              display: 'block', width: '100%', padding: '14px',
+              borderRadius: '12px', border: '2px solid #E8541A',
+              color: '#E8541A', fontWeight: 700, fontSize: '15px',
+              textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box'
+            }}>
               Track a Parcel Without Login
             </Link>
           </form>
 
-          {/* Register link */}
-          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: '32px', fontSize: '14px' }}>
+          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: '24px', fontSize: '14px' }}>
             Don't have an account?{' '}
-            <Link to="/register" style={{ color: '#E8541A', fontWeight: 700, textDecoration: 'none' }}>
-              Create one
-            </Link>
+            <Link to="/register" style={{ color: '#E8541A', fontWeight: 700, textDecoration: 'none' }}>Create one</Link>
           </p>
         </motion.div>
       </div>
     </div>
   )
 }
+
+
+
+
 
 
 

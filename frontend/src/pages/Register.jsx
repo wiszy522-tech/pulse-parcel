@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import api from '../services/api'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
+import useIsMobile from '../hooks/useIsMobile'
 
 export default function Register() {
   const [form, setForm] = useState({ email: '', full_name: '', password: '', confirm_password: '' })
@@ -17,6 +18,7 @@ export default function Register() {
   const { setAuth } = useAuthStore()
   const { theme, setTheme } = useThemeStore()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
@@ -85,70 +87,69 @@ export default function Register() {
   ]
 
   const inputStyle = {
-    width: '100%', paddingLeft: '46px', paddingRight: '16px',
-    paddingTop: '15px', paddingBottom: '15px',
+    width: '100%', paddingLeft: '44px', paddingRight: '16px',
+    paddingTop: '13px', paddingBottom: '13px',
     borderRadius: '12px', border: `1.5px solid ${colors.inputBorder}`,
     background: colors.inputBg, color: colors.inputText,
     fontSize: '15px', outline: 'none', boxSizing: 'border-box',
   }
 
-  const isMobile = window.innerWidth < 768
-
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg, paddingBottom: '90px' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg }}>
 
-      {/* Left side - Image */}
-      <div style={{ width: '50%', position: 'relative', overflow: 'hidden' }}
-        className="hidden lg:block">
-        <img
-          src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1200&auto=format&fit=crop"
-          alt="Logistics"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, rgba(45,45,127,0.88) 0%, rgba(45,45,127,0.68) 50%, rgba(232,84,26,0.58) 100%)'
-        }} />
-        <div style={{
-          position: 'relative', zIndex: 10,
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'flex-end',
-          padding: '56px', color: 'white', height: '100%'
-        }}>
-          <h1 style={{ fontSize: '52px', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>
-            Join the<br />
-            <span style={{ color: '#F5A623' }}>Network.</span>
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '18px', lineHeight: 1.7 }}>
-            Create your account and start<br />ordering and tracking parcels today.
-          </p>
+      {/* Left side — desktop only */}
+      {!isMobile && (
+        <div style={{ width: '50%', position: 'relative', overflow: 'hidden' }}>
+          <img
+            src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1200&auto=format&fit=crop"
+            alt="Logistics"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(135deg, rgba(45,45,127,0.88) 0%, rgba(45,45,127,0.68) 50%, rgba(232,84,26,0.58) 100%)'
+          }} />
+          <div style={{
+            position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column',
+            justifyContent: 'flex-end', padding: '56px', color: 'white', height: '100%'
+          }}>
+            <h1 style={{ fontSize: '52px', fontWeight: 900, lineHeight: 1.1, marginBottom: '20px' }}>
+              Join the<br /><span style={{ color: '#F5A623' }}>Network.</span>
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '18px', lineHeight: 1.7 }}>
+              Create your account and start<br />ordering and tracking parcels today.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Right side - Form */}
+      {/* Right side */}
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        background: colors.card, padding: isMobile ? '24px 16px' : '48px 24px',
+        background: isMobile ? (isDark ? '#080816' : '#f8fafc') : colors.card,
+        padding: isMobile ? '24px 20px' : '48px 24px',
         position: 'relative', minHeight: '100vh',
       }}>
 
+        {/* Mobile background */}
+        {isMobile && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 0,
+            backgroundImage: 'url(https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&auto=format&fit=crop)',
+            backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.06
+          }} />
+        )}
+
         {/* Theme toggle */}
-        <div style={{ position: 'absolute', top: isMobile ? '16px' : '24px', right: isMobile ? '12px' : '24px', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '4px', zIndex: 10 }}>
           {themeOptions.map(({ key, icon, label }) => (
-            <button
-              key={key}
-              onClick={() => setTheme(key)}
-              style={{
-                padding: isMobile ? '4px 8px' : '6px 12px', borderRadius: '999px',
-                fontSize: isMobile ? '10px' : '12px', fontWeight: 600, border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? '3px' : '5px',
-                background: theme === key ? '#2D2D7F' : colors.themeBtnBg,
-                color: theme === key ? 'white' : colors.themeBtnText,
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-            >
+            <button key={key} onClick={() => setTheme(key)} style={{
+              padding: '5px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 600,
+              border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
+              background: theme === key ? '#2D2D7F' : colors.themeBtnBg,
+              color: theme === key ? 'white' : colors.themeBtnText, transition: 'all 0.2s'
+            }}>
               {icon} {!isMobile && label}
             </button>
           ))}
@@ -158,48 +159,42 @@ export default function Register() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ width: '100%', maxWidth: '440px' }}
+          style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}
         >
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: isMobile ? '28px' : '36px', justifyContent: isMobile ? 'center' : 'flex-start' }}>
             <img src="/p_logo.png" alt="Logo" style={{
-              width: '80px', height: '80px', borderRadius: '18px',
-              objectFit: 'contain', background: 'transparent',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+              width: isMobile ? '100px' : '80px',
+              height: isMobile ? '100px' : '80px',
+              borderRadius: '20px', objectFit: 'contain',
+              background: isDark ? 'rgba(255,255,255,0.05)' : 'white',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.15)'
             }} />
             <div>
-              <div style={{ fontWeight: 900, fontSize: '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
+              <div style={{ fontWeight: 900, fontSize: isMobile ? '22px' : '24px', color: colors.text, letterSpacing: '-0.5px' }}>PULSE PARCEL</div>
               <div style={{ fontSize: '12px', color: '#E8541A', letterSpacing: '3px', fontWeight: 700 }}>LIMITED</div>
             </div>
           </div>
 
-          <h2 style={{ fontSize: '38px', fontWeight: 900, color: colors.text, marginBottom: '8px', lineHeight: 1.1 }}>
+          <h2 style={{ fontSize: isMobile ? '26px' : '36px', fontWeight: 900, color: colors.text, marginBottom: '6px', textAlign: isMobile ? 'center' : 'left' }}>
             Create account
           </h2>
-          <p style={{ color: colors.subtext, fontSize: '16px', marginBottom: '32px' }}>
+          <p style={{ color: colors.subtext, fontSize: '14px', marginBottom: '24px', textAlign: isMobile ? 'center' : 'left' }}>
             Join Pulse Parcel Limited today
           </p>
 
-          {/* Google Sign Up */}
-          <button
-            type="button"
-            onClick={() => handleGoogleLogin()}
-            disabled={googleLoading}
-            style={{
-              width: '100%', padding: '15px', borderRadius: '12px',
-              border: `1.5px solid ${colors.inputBorder}`,
-              background: colors.inputBg, color: colors.inputText,
-              fontWeight: 700, fontSize: '15px',
-              cursor: googleLoading ? 'not-allowed' : 'pointer',
-              opacity: googleLoading ? 0.6 : 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: '10px', marginBottom: '24px',
-              transition: 'all 0.2s', boxSizing: 'border-box'
-            }}
-          >
-            {googleLoading ? (
-              <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" />
-            ) : (
+          {/* Google */}
+          <button type="button" onClick={() => handleGoogleLogin()} disabled={googleLoading} style={{
+            width: '100%', padding: '14px', borderRadius: '12px',
+            border: `1.5px solid ${colors.inputBorder}`,
+            background: colors.inputBg, color: colors.inputText,
+            fontWeight: 700, fontSize: '15px',
+            cursor: googleLoading ? 'not-allowed' : 'pointer',
+            opacity: googleLoading ? 0.6 : 1,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '10px', marginBottom: '20px', boxSizing: 'border-box'
+          }}>
+            {googleLoading ? <Loader2 style={{ width: '18px', height: '18px' }} className="animate-spin" /> : (
               <>
                 <svg width="18" height="18" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -213,99 +208,78 @@ export default function Register() {
           </button>
 
           {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <div style={{ flex: 1, height: '1px', background: colors.divider }} />
             <span style={{ color: colors.subtext, fontSize: '13px' }}>or sign up with email</span>
             <div style={{ flex: 1, height: '1px', background: colors.divider }} />
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
-            {/* Full Name */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
-                Full Name
-              </label>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>Full Name</label>
               <div style={{ position: 'relative' }}>
-                <User style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+                <User style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
                 <input type="text" name="full_name" value={form.full_name} onChange={handleChange} required placeholder="John Doe" style={inputStyle} />
               </div>
             </div>
 
-            {/* Email */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
-                Email Address
-              </label>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>Email Address</label>
               <div style={{ position: 'relative' }}>
-                <Mail style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+                <Mail style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
                 <input type="email" name="email" value={form.email} onChange={handleChange} required placeholder="you@example.com" style={inputStyle} />
               </div>
             </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
-                Password
-              </label>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>Password</label>
               <div style={{ position: 'relative' }}>
-                <Lock style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+                <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
                 <input type={showPassword ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange} required placeholder="Min. 8 characters"
-                  style={{ ...inputStyle, paddingRight: '50px' }} />
+                  style={{ ...inputStyle, paddingRight: '48px' }} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0 }}>
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0 }}>
                   {showPassword ? <EyeOff style={{ width: '17px', height: '17px' }} /> : <Eye style={{ width: '17px', height: '17px' }} />}
                 </button>
               </div>
             </div>
 
-            {/* Confirm Password */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.label, marginBottom: '10px' }}>
-                Confirm Password
-              </label>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: colors.label, marginBottom: '8px' }}>Confirm Password</label>
               <div style={{ position: 'relative' }}>
-                <Lock style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+                <Lock style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
                 <input type={showConfirm ? 'text' : 'password'} name="confirm_password" value={form.confirm_password} onChange={handleChange} required placeholder="Repeat your password"
-                  style={{ ...inputStyle, paddingRight: '50px' }} />
+                  style={{ ...inputStyle, paddingRight: '48px' }} />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                  style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0 }}>
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0 }}>
                   {showConfirm ? <EyeOff style={{ width: '17px', height: '17px' }} /> : <Eye style={{ width: '17px', height: '17px' }} />}
                 </button>
               </div>
             </div>
 
-            {/* Create Account Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%', padding: '16px', borderRadius: '12px',
-                background: '#E8541A', color: 'white',
-                fontWeight: 800, fontSize: '16px', border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.6 : 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: '8px', transition: 'background 0.2s', boxSizing: 'border-box'
-              }}
-            >
+            <button type="submit" disabled={loading} style={{
+              width: '100%', padding: '15px', borderRadius: '12px',
+              background: '#E8541A', color: 'white', fontWeight: 800,
+              fontSize: '16px', border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              marginTop: '4px'
+            }}>
               {loading ? <Loader2 style={{ width: '20px', height: '20px' }} className="animate-spin" /> : 'Create Account'}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: '24px', fontSize: '14px' }}>
+          <p style={{ textAlign: 'center', color: colors.subtext, marginTop: '20px', fontSize: '14px' }}>
             Already have an account?{' '}
-            <Link to="/login" style={{ color: '#2D2D7F', fontWeight: 700, textDecoration: 'none' }}>
-              Sign in
-            </Link>
+            <Link to="/login" style={{ color: '#2D2D7F', fontWeight: 700, textDecoration: 'none' }}>Sign in</Link>
           </p>
         </motion.div>
       </div>
     </div>
   )
 }
-
-
 
 
 
