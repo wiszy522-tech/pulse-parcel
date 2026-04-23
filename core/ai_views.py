@@ -44,8 +44,8 @@ ABOUT PULSE PARCEL LIMITED:
 - Services: Product ordering, parcel delivery, real-time tracking
 - Payment: Secured payments via Paystack
 - Email: pulseparcelltd@gmail.com
-- Phone: +234 805 050 1440
-- WhatsApp: +234 805 050 1440
+- Phone: +234 805 050 1440, +234 814 077 0540
+- WhatsApp: +234 805 050 1440, +234 816 994 4731S
 - Tracking: Every order gets a unique tracking code (format: TRK-XXXXXXXX)
 - Order Statuses: Pending → Processing → Out for Delivery → Delivered
 - Users receive automated email notifications at each delivery stage
