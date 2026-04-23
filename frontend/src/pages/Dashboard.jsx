@@ -24,6 +24,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [expandedOrder, setExpandedOrder] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
@@ -48,6 +49,17 @@ export default function Dashboard() {
     delivered: orders.filter(o => o.status === 'delivered').length,
   }
 
+  const filteredOrders = statusFilter === 'all'
+    ? orders
+    : orders.filter(o => o.status === statusFilter)
+
+  const statCards = [
+    { label: 'Total Orders', value: stats.total, color: '#2D2D7F', filter: 'all' },
+    { label: 'Pending', value: stats.pending, color: '#F5A623', filter: 'pending' },
+    { label: 'On the Move', value: stats.onMove, color: '#E8541A', filter: 'out_for_delivery' },
+    { label: 'Delivered', value: stats.delivered, color: '#10b981', filter: 'delivered' },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: colors.bg, paddingBottom: isMobile ? '100px' : '40px' }}>
       <Navbar />
@@ -69,55 +81,90 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats — clickable */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
           gap: isMobile ? '10px' : '16px',
           marginBottom: '28px'
         }}>
-          {[
-            { label: 'Total Orders', value: stats.total, color: '#2D2D7F' },
-            { label: 'Pending', value: stats.pending, color: '#F5A623' },
-            { label: 'On the Move', value: stats.onMove, color: '#E8541A' },
-            { label: 'Delivered', value: stats.delivered, color: '#10b981' },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              style={{
-                background: colors.card, borderRadius: '14px',
-                border: `1px solid ${colors.border}`,
-                padding: isMobile ? '14px' : '20px', textAlign: 'center'
-              }}
-            >
-              <div style={{ fontSize: isMobile ? '26px' : '32px', fontWeight: 900, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: isMobile ? '10px' : '12px', color: colors.subtext, fontWeight: 600, marginTop: '4px' }}>{stat.label}</div>
-            </motion.div>
-          ))}
+          {statCards.map((stat, i) => {
+            const isActive = statusFilter === stat.filter
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                onClick={() => setStatusFilter(stat.filter)}
+                whileHover={{ y: -2 }}
+                style={{
+                  background: colors.card,
+                  borderRadius: '14px',
+                  border: `2px solid ${isActive ? stat.color : colors.border}`,
+                  padding: isMobile ? '14px' : '20px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: isActive ? `0 4px 16px ${stat.color}33` : 'none'
+                }}
+              >
+                <div style={{ fontSize: isMobile ? '26px' : '32px', fontWeight: 900, color: stat.color }}>{stat.value}</div>
+                <div style={{ fontSize: isMobile ? '10px' : '12px', color: colors.subtext, fontWeight: 600, marginTop: '4px' }}>{stat.label}</div>
+                {isActive && stat.filter !== 'all' && (
+                  <div style={{ fontSize: '10px', color: stat.color, fontWeight: 700, marginTop: '4px' }}>● Filtered</div>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
+
+        {/* Filter indicator */}
+        {statusFilter !== 'all' && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '10px 14px', borderRadius: '10px', background: colors.card, border: `1px solid ${colors.border}` }}>
+            <span style={{ fontSize: '13px', color: colors.subtext }}>
+              Showing: <strong style={{ color: colors.text, textTransform: 'capitalize' }}>{statusFilter.replace(/_/g, ' ')}</strong> orders ({filteredOrders.length})
+            </span>
+            <button onClick={() => setStatusFilter('all')} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#E8541A', fontSize: '12px', fontWeight: 700, padding: 0
+            }}>
+              Clear ✕
+            </button>
+          </div>
+        )}
 
         {/* Orders list */}
         {isLoading ? (
           <Loader fullscreen={false} />
-        ) : orders.length === 0 ? (
+        ) : filteredOrders.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: colors.subtext }}>
             <Package style={{ width: '48px', height: '48px', margin: '0 auto 16px', opacity: 0.3 }} />
-            <p style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px' }}>No orders yet</p>
-            <p style={{ fontSize: '14px', marginBottom: '24px' }}>Browse our products and place your first order</p>
-            <button onClick={() => navigate('/products')} style={{
-              padding: '12px 28px', borderRadius: '12px',
-              background: '#2D2D7F', color: 'white',
-              fontWeight: 700, fontSize: '15px', border: 'none', cursor: 'pointer'
-            }}>
-              Browse Products
-            </button>
+            <p style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px' }}>
+              {statusFilter !== 'all' ? `No ${statusFilter.replace(/_/g, ' ')} orders` : 'No orders yet'}
+            </p>
+            {statusFilter !== 'all' ? (
+              <button onClick={() => setStatusFilter('all')} style={{
+                padding: '10px 24px', borderRadius: '10px', background: '#2D2D7F',
+                color: 'white', fontWeight: 700, fontSize: '14px', border: 'none', cursor: 'pointer', marginTop: '8px'
+              }}>
+                Show All Orders
+              </button>
+            ) : (
+              <>
+                <p style={{ fontSize: '14px', marginBottom: '24px' }}>Browse our products and place your first order</p>
+                <button onClick={() => navigate('/products')} style={{
+                  padding: '12px 28px', borderRadius: '12px', background: '#2D2D7F',
+                  color: 'white', fontWeight: 700, fontSize: '15px', border: 'none', cursor: 'pointer'
+                }}>
+                  Browse Products
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {orders.map((order, i) => {
+            {filteredOrders.map((order, i) => {
               const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending
               const StatusIcon = statusCfg.icon
               const isExpanded = expandedOrder === order.id
@@ -161,10 +208,7 @@ export default function Dashboard() {
                           <div style={{ fontSize: isMobile ? '13px' : '16px', fontWeight: 900, color: '#E8541A' }}>
                             ₦{Number(order.total_amount).toLocaleString()}
                           </div>
-                          <div style={{
-                            fontSize: '10px', fontWeight: 700,
-                            color: statusCfg.color, marginTop: '2px'
-                          }}>
+                          <div style={{ fontSize: '10px', fontWeight: 700, color: statusCfg.color, marginTop: '2px' }}>
                             {statusCfg.label}
                           </div>
                         </div>
@@ -189,8 +233,7 @@ export default function Dashboard() {
                           borderTop: `1px solid ${colors.border}`
                         }}>
                           <div style={{
-                            paddingTop: '16px',
-                            display: 'grid',
+                            paddingTop: '16px', display: 'grid',
                             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
                             gap: '16px'
                           }}>
@@ -210,6 +253,7 @@ export default function Dashboard() {
                               <p style={{ fontSize: '12px', color: colors.subtext }}>{order.address}, {order.city}, {order.state}</p>
                             </div>
                           </div>
+
                           <button
                             onClick={() => navigate(`/track?code=${order.tracking_code}`)}
                             style={{
@@ -217,7 +261,8 @@ export default function Dashboard() {
                               borderRadius: '10px', border: `1.5px solid #2D2D7F`,
                               background: 'transparent', color: '#2D2D7F',
                               fontWeight: 700, fontSize: '13px', cursor: 'pointer',
-                              width: isMobile ? '100%' : 'auto'
+                              width: isMobile ? '100%' : 'auto',
+                              transition: 'all 0.2s'
                             }}
                           >
                             Track This Order →
@@ -235,6 +280,7 @@ export default function Dashboard() {
     </div>
   )
 }
+
 
 
 

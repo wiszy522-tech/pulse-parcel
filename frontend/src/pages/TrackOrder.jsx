@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Package, Truck, CheckCircle, Clock, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -19,6 +20,7 @@ export default function TrackOrder() {
   const [trackingCode, setTrackingCode] = useState('')
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [searchParams] = useSearchParams()
   const { isAuthenticated } = useAuthStore()
   const { theme } = useThemeStore()
   const isMobile = useIsMobile()
@@ -33,6 +35,19 @@ export default function TrackOrder() {
     subtext: isDark ? '#9ca3af' : '#64748b',
     inputBg: isDark ? '#111827' : '#f1f5f9',
   }
+
+  // Auto fill and search when coming from dashboard
+  useEffect(() => {
+    const code = searchParams.get('code')
+    if (code) {
+      setTrackingCode(code)
+      setLoading(true)
+      api.get(`/orders/track/${code}/`)
+        .then(res => setOrder(res.data))
+        .catch(() => toast.error('Order not found.'))
+        .finally(() => setLoading(false))
+    }
+  }, [])
 
   const handleTrack = async (e) => {
     e.preventDefault()
@@ -65,7 +80,11 @@ export default function TrackOrder() {
       }}>
         {!isAuthenticated && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '32px' }}>
-            <img src="/p_logo.png" alt="Logo" style={{ width: isMobile ? '56px' : '72px', height: isMobile ? '56px' : '72px', objectFit: 'contain' }} />
+            <img src="/p_logo.png" alt="Logo" style={{
+              width: isMobile ? '56px' : '72px',
+              height: isMobile ? '56px' : '72px',
+              objectFit: 'contain'
+            }} />
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontWeight: 900, fontSize: isMobile ? '18px' : '24px', color: 'white' }}>PULSE PARCEL</div>
               <div style={{ fontSize: '11px', color: '#F5A623', letterSpacing: '3px', fontWeight: 700 }}>LIMITED</div>
@@ -89,10 +108,18 @@ export default function TrackOrder() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           onSubmit={handleTrack}
-          style={{ display: 'flex', gap: '10px', maxWidth: '540px', margin: '0 auto', flexDirection: isMobile ? 'column' : 'row' }}
+          style={{
+            display: 'flex', gap: '10px',
+            maxWidth: '540px', margin: '0 auto',
+            flexDirection: isMobile ? 'column' : 'row'
+          }}
         >
           <div style={{ position: 'relative', flex: 1 }}>
-            <Search style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', width: '16px', height: '16px' }} />
+            <Search style={{
+              position: 'absolute', left: '14px', top: '50%',
+              transform: 'translateY(-50%)',
+              color: '#6b7280', width: '16px', height: '16px'
+            }} />
             <input
               type="text"
               value={trackingCode}
@@ -129,28 +156,48 @@ export default function TrackOrder() {
       <div style={{ maxWidth: '760px', margin: '0 auto', padding: isMobile ? '20px 16px' : '48px 24px' }}>
         <AnimatePresence>
           {order && (
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
               {/* Status Card */}
               <div style={{
                 background: colors.card, borderRadius: '20px',
                 border: `1px solid ${colors.border}`,
-                padding: isMobile ? '20px 16px' : '32px', marginBottom: '20px'
+                padding: isMobile ? '20px 16px' : '32px',
+                marginBottom: '20px'
               }}>
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between',
+                  alignItems: 'flex-start', marginBottom: '28px',
+                  flexWrap: 'wrap', gap: '10px'
+                }}>
                   <div>
-                    <p style={{ color: colors.subtext, fontSize: '11px', fontWeight: 600, marginBottom: '4px', letterSpacing: '1px' }}>TRACKING CODE</p>
-                    <h2 style={{ fontSize: isMobile ? '20px' : '28px', fontWeight: 900, color: colors.text, letterSpacing: '2px', margin: 0 }}>{order.tracking_code}</h2>
+                    <p style={{ color: colors.subtext, fontSize: '11px', fontWeight: 600, marginBottom: '4px', letterSpacing: '1px' }}>
+                      TRACKING CODE
+                    </p>
+                    <h2 style={{
+                      fontSize: isMobile ? '20px' : '28px',
+                      fontWeight: 900, color: colors.text,
+                      letterSpacing: '2px', margin: 0
+                    }}>
+                      {order.tracking_code}
+                    </h2>
                   </div>
                   <div style={{
                     padding: '6px 16px', borderRadius: '999px',
-                    background: order.status === 'delivered' ? 'rgba(16,185,129,0.12)' :
+                    background:
+                      order.status === 'delivered' ? 'rgba(16,185,129,0.12)' :
                       order.status === 'out_for_delivery' ? 'rgba(232,84,26,0.12)' :
-                      order.status === 'processing' ? 'rgba(45,45,127,0.12)' : 'rgba(245,166,35,0.12)',
-                    color: order.status === 'delivered' ? '#10b981' :
+                      order.status === 'processing' ? 'rgba(45,45,127,0.12)' :
+                      'rgba(245,166,35,0.12)',
+                    color:
+                      order.status === 'delivered' ? '#10b981' :
                       order.status === 'out_for_delivery' ? '#E8541A' :
-                      order.status === 'processing' ? '#2D2D7F' : '#F5A623',
+                      order.status === 'processing' ? '#2D2D7F' :
+                      '#F5A623',
                     fontWeight: 800, fontSize: '13px'
                   }}>
                     {order.status === 'out_for_delivery' ? '🚚 On the Move' :
@@ -188,12 +235,22 @@ export default function TrackOrder() {
                                 <motion.div
                                   animate={{ scale: [1, 1.8, 1], opacity: [0.5, 0, 0.5] }}
                                   transition={{ repeat: Infinity, duration: 1.5 }}
-                                  style={{ position: 'absolute', width: '42px', height: '42px', borderRadius: '50%', background: step.color, zIndex: 0 }}
+                                  style={{
+                                    position: 'absolute',
+                                    width: isMobile ? '36px' : '42px',
+                                    height: isMobile ? '36px' : '42px',
+                                    borderRadius: '50%', background: step.color, zIndex: 0
+                                  }}
                                 />
                                 <motion.div
                                   animate={{ scale: [1, 2.3, 1], opacity: [0.3, 0, 0.3] }}
                                   transition={{ repeat: Infinity, duration: 1.5, delay: 0.3 }}
-                                  style={{ position: 'absolute', width: '42px', height: '42px', borderRadius: '50%', background: step.color, zIndex: 0 }}
+                                  style={{
+                                    position: 'absolute',
+                                    width: isMobile ? '36px' : '42px',
+                                    height: isMobile ? '36px' : '42px',
+                                    borderRadius: '50%', background: step.color, zIndex: 0
+                                  }}
                                 />
                               </>
                             )}
@@ -211,7 +268,11 @@ export default function TrackOrder() {
                                 position: 'relative', zIndex: 1
                               }}
                             >
-                              <Icon style={{ width: isMobile ? '14px' : '18px', height: isMobile ? '14px' : '18px', color: isCompleted ? 'white' : colors.subtext }} />
+                              <Icon style={{
+                                width: isMobile ? '14px' : '18px',
+                                height: isMobile ? '14px' : '18px',
+                                color: isCompleted ? 'white' : colors.subtext
+                              }} />
                             </motion.div>
                           </div>
                           <span style={{
@@ -256,7 +317,9 @@ export default function TrackOrder() {
                 border: `1px solid ${colors.border}`,
                 padding: isMobile ? '20px 16px' : '32px'
               }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 900, color: colors.text, marginBottom: '20px' }}>Status History</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, color: colors.text, marginBottom: '20px' }}>
+                  Status History
+                </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {order.status_history.map((h, i) => (
                     <div key={h.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
@@ -285,13 +348,17 @@ export default function TrackOrder() {
         {!order && !loading && (
           <div style={{ textAlign: 'center', padding: '60px 0', color: colors.subtext }}>
             <Package style={{ width: '56px', height: '56px', margin: '0 auto 16px', opacity: 0.3 }} />
-            <p style={{ fontSize: '16px', fontWeight: 600 }}>Enter a tracking code above to track your parcel</p>
+            <p style={{ fontSize: '16px', fontWeight: 600 }}>
+              Enter a tracking code above to track your parcel
+            </p>
           </div>
         )}
       </div>
     </div>
   )
 }
+
+
 
 
 
